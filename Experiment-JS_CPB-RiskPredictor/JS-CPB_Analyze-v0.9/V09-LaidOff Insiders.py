@@ -9,7 +9,44 @@
 
 import os
 import sys
+#
+# 定义一个提取时间的函数，具体到日子
+def GetDate(date):
+    # like: 01/02/2010 09:03:11
+    year = date[6:10]
+    month = date[:2]
+    day = date[3:5]
+    return year + '-' + month + '-' + day
+# 定义一个读取Logon数据以确定用户最后一天上班的日期==最后一次发邮件的日期，以此作为用户的离职日期
+def Extract_LastLogonDay(user, logon_lst):
+    # CERT4.2 Logon数据格式
+    # id,date,user,pc,activity
+    # {X1D9-S0ES98JV-5357PWMI},01/02/2010 06:49:00,NGF0157,PC-6056,Logon
+    # 提取每个用户的所有登录记录，保存在Logon数据的目录下
+    # 提取最后一次Logon登录的日期作为其离职日期返回
+    logon_dir = os.path.dirname(sys.path[0]) + '\\' + 'CERT4.2_Logon_ByUsers_0.6' + '\\' + user
+    f_user_logon = open(logon_dir + '\\' + 'V09_Logon_Data.csv', 'w')
+    last_logon_date = '2010-01-01'
+    for line_log in logon_lst:
+        line_lst = line_log.strip('\n').strip(',').split(',')
+        if line_lst[1] == 'date':
+            continue
+        if line_lst[2] != user:
+            continue
+        else:
+            date = GetDate(line_lst[1])
+            if line_lst[-1] == 'Logon':
+                last_logon_date = date
+            f_user_logon.write(date + ',')
+            for ele in line_lst[2:]:
+                f_user_logon.write(ele + ',')
+            f_user_logon.write('\n')
+            continue
+    f_user_logon.close()
+    return last_logon_date
 
+#
+#
 print '首先分析CERT4.2数据中所有离职与入职的员工信息...\t...[laid off/in month, user ldap]...\n'
 # 首先比较发现变化的用户user_id
 # 然后记录该用户信息到Users_Laid/In中
@@ -37,7 +74,12 @@ print '所有需要分析的LDAP文件有： ', fileMonth, '\n'
 f = open(fileMonth[0], 'r')
 f_lst = f.readlines()
 f.close()
-f_w = open('CERT4.2-Leave-Users_0.6.csv', 'w') # 定义一个记录离职员工的文件，注意离职leave与解雇laid off不同
+# 指定CERT4.2的用户登录数据
+Logon_Path = os.path.dirname(sys.path[0]) + '\\' + 'CERT4.2-logon.csv'
+f_logon = open(Logon_Path, 'r')
+Logon_lst = f_logon.readlines()
+f_logon.close()
+f_w = open('CERT4.2-Leave-Users_OnDay_0.9.csv', 'w') # 定义一个记录离职员工的文件，注意离职leave与解雇laid off不同
 f_w.write('Leave  Users in CERT4.2 from 2009-12 to 2011-05\n')
 for usr in f_lst:
     line = usr.strip('\n').strip(',').split(',')
@@ -48,67 +90,39 @@ for usr in f_lst:
     Users_CERT.append(line[1])
     Users_LDAP.append(usr)
 print 'CERT users初始化完毕...\t', Users_CERT[:10], '\n'
-#
+
+# 为所有用户生成独立的Logon数据
+CERT42_Users_LastDay = []
+for user in Users_CERT:
+    last_day = Extract_LastLogonDay(user, Logon_lst)
+    print user, 'Logon数据提取完毕..\n'
+    lastday = []
+    lastday.append(user)
+    lastday.append(last_day)
+    CERT42_Users_LastDay.append(lastday)
+
 #
 # 开始循环比较后续的LDAP文件，筛选出其中的变化用户
-while MonthCnt <= len(MonthList) - 1:
-    # fileMonth: 2009-12.csv
-    f = open(fileMonth[MonthCnt], 'r')
-    f_lst = f.readlines()
-    f.close()
-    Users_Month = []
-    for line in f_lst:
-        line_lst = line.strip('\n').strip(',').split(',')
-        if line_lst[1] == 'user_id':
-            continue
-        Users_Month.append(line_lst[1])
-    UsersCnt0 = len(Users_LaidOff)
+j = 0
+while j < len(Users_CERT):
     # 开始判断离职的用户
-    for user in Users_CERT:
-        if user not in Users_Month:
-            # 该用户离职
-            laid_ldap = []
-            laid_ldap.append(user)
-            # laid_ldap.append(MonthList[MonthCnt])
-            # 为了将离职日期具体到天，这里需要根据日期进一步确定离职的天
-            # 开始从邮件中确定该用户最后离职的时间
-            # 注意：需要事先提取出CERT4.2用户的邮件记录，按用户记录整理
-            # Email_Dir = r'G:\GitHub\Essay-Experiments\CERT5.2-Results\CERT5.2-Users-EmailRecords'
-            #
-            # 这里修改为利用最后一天上班登录的日期作为离开单位的那一天
-            for file in os.listdir(Email_Dir):
-                # like: ADH1016.csv
-                if user in file and 'feat' not in file:
-                    f_0 = open(Email_Dir + '\\' + file, 'r')
-                    f_0_lst = f_0.readlines()
-                    f_0.close()
-                    line_0_lst = f_0_lst[-1].strip('\n').strip(',').split(',')
-                    # time like 02/09/2010 15:58:14
-                    year_0 = line_0_lst[0][6:10]
-                    month_0 = line_0_lst[0][0:2]
-                    day_0 = line_0_lst[0][3:5]
-                    laid_ldap.append(year_0 + '-' + month_0 + '-' + day_0)
-            laid_ldap.append(Users_LDAP[Users_CERT.index(user)])
-            Users_LaidOff.append(laid_ldap)
-            Users_LDAP.remove(Users_LDAP[Users_CERT.index(user)])
-            Users_CERT.remove(user) # 从当前用户集合中删除该用户
-            print user, ' 离职 ', '月份 ', MonthList[MonthCnt], ':', laid_ldap, '\n'
-    # 判断新入职用户
-    for user in Users_Month:
-        if user not in Users_CERT:
-            Engage_ladp = []
-            Engage_ladp.append(user)
-            Engage_ladp.append(MonthList[MonthCnt])
-            Engage_ladp.append(f_lst[Users_Month.index(user)])
-            Users_EngageIn.append(Engage_ladp)
-            Users_CERT.append(user)
-            Users_LDAP.append(f_lst[Users_Month.index(user)])
-    print MonthList[MonthCnt], '分析完毕...\n'
-    print MonthList[MonthCnt], '离职用户为： \t', len(Users_LaidOff) - UsersCnt0, '\n'
-    MonthCnt += 1
+    if CERT42_Users_LastDay[j][1] < '2011-05-01':
+        # 说明该用户未一直工作
+        # 该用户离职
+        laid_ldap = []
+        laid_ldap.append(CERT42_Users_LastDay[j][0])
+        laid_ldap.append(CERT42_Users_LastDay[j][1])
+        laid_ldap.append(Users_LDAP[j].strip('\n'))
+        Users_LaidOff.append(laid_ldap)
+        #Users_LDAP.remove(Users_LDAP[j])
+        #Users_CERT.remove(user) # 从当前用户集合中删除该用户
+        print Users_CERT[j], CERT42_Users_LastDay[j], ' 离职 ', '月份 ', CERT42_Users_LastDay[j][1], ':', laid_ldap, '\n'
+        j += 1
+    else:
+        j += 1
 
-
-for usr in Users_LaidOff:
+Users_LaidOff_sort = sorted(Users_LaidOff, key=lambda t: t[1])
+for usr in Users_LaidOff_sort:
     print usr[0], '离职月份： ', usr[1], 'LDAP信息： ', usr[2], '\n'
     f_w.write(usr[0])
     f_w.write(',')
@@ -117,15 +131,6 @@ for usr in Users_LaidOff:
     f_w.write(usr[2])
     f_w.write('\n')
 print '总共离职用户为： ', len(Users_LaidOff), '\n'
-print '入职用户为： ', Users_EngageIn, '\n'
-
-
-
-
-
-
+# print '入职用户为： ', Users_EngageIn, '\n'
 sys.exit()
-
-
-
 

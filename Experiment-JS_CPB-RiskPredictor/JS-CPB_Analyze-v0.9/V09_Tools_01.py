@@ -22,7 +22,7 @@ def Extract_Date(date):
 # CERT4.2的Logon数据按月份分别存入对应目录下的文件，顺便创建月份目录
 # 该程序运行时必须确保目标月份目录为空
 # 使用了Label_1st用来标记第一次月份，以区分是否需要先关闭一个文件
-Flag_0 = True
+Flag_0 = False
 if Flag_0:
     print '..<<CERT4.2 Logon数据按月归类到月份目录>>..\n\n'
     # 定义一个已分析的月份列表
@@ -64,6 +64,47 @@ if Flag_0:
             continue
 #
 #
+# 提取CERT4.2用户的邮件数据，按照用户归类
+Flag_1 = False
+if Flag_1:
+    Email_Path = r'G:\r4.2\email.csv'
+    ldap_path = os.path.dirname(sys.path[0]) + '\\' + 'CERT4.2-2009-12.csv'
+    f_ldap = open(ldap_path, 'r')
+    CERT42_Users = []
+    for line_ldap in f_ldap.readlines():
+        line_lst = line_ldap.strip('\n').strip(',').split(',')
+        # employee_name,user_id,email,role,business_unit,functional_unit,department,team,supervisor
+        if line_lst[1] == 'user_id':
+            continue
+        CERT42_Users.append(line_lst[1])
+    print 'CERT4.2用户统计完毕..\n', len(CERT42_Users), '\n'
+    # 指定用户邮件内容保存目录
+    Email_Dir = os.path.dirname(sys.path[0]) + '\\' + 'CERT4.2_Users_EmailRecord'
+    for user in CERT42_Users:
+        if os.path.exists(Email_Dir) == False:
+            os.mkdir(Email_Dir)
+        user_email_path = Email_Dir + '\\' + user + '_EmailRecord.csv'
+        f_user_email = open(user_email_path, 'w')
+        # CERT4.2 邮件格式
+        # Fields: id, date, user, pc, to, cc, bcc, from, size, attachment_count, content
+        # {R3I7-S4TX96FG-8219JWFF},01/02/2010 07:11:45,LAP0338,PC-5758,Dean.Flynn.Hines@dtaa.com;Wade_Harrison@lockheedmartin.com,Nathaniel.Hunter.Heath@dtaa.com,,Lynn.Adena.Pratt@dtaa.com,25830,0,middle f2 systems 4 july techniques powerful destroyed who larger speeds plains part paul hold like followed over decrease actual training international addition geographically side able 34 29 such some appear prairies still 2009 succession yet 23 months mid america could most especially 34 off descend 2010 thus officially southward slope pass finland needed 2009 gulf stick possibility hall 49 montreal kick gulf
+        with open(Email_Path, 'r') as EmailRecords_lst:
+            for line in EmailRecords_lst:
+                line_lst = line.strip('\n').strip(',').split(',')
+                if line_lst[0] == 'id':
+                    continue
+                if line_lst[2] != user:
+                    continue
+                else:
+                    for ele in line_lst[1:-1]:
+                        f_user_email.write(ele + ',')
+                    f_user_email.write('\n')
+                    continue
+        f_user_email.close()
+        print user, '邮件记录写入完毕..\n'
 
-
-
+#
+#
+# 判断CERT4.2中三类Insiders的离职时间，以判断是否需要考虑2011-05的离职用户
+# r4.2-1
+# 顺便生成三类Insiders的用户列表代码，以及各自离职时间
