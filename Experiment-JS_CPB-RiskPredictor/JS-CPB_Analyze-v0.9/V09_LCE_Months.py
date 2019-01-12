@@ -43,15 +43,22 @@ def Get_User_OCEAN(user, f_ocean_lst):
         else:
             continue
 
-def Cal_CPB(user_ocean):
-    # 给定一个上述格式的6-format: user_id, o, c, e, a, n
-    # 计算该用户的CPB-I与CPB-O分数
-    # 这里使用的是CERT文献中的三元显著关联特征：
-    # CPB-I = -0.34 * A_Score + 0.36 * A_Score * (-0.40)
-    # CPB-O = -0.52 * C_Score + 0.36 * A_Score * (-0.41)
-    CPB_I = user_ocean[4] * (-0.34) + user_ocean[4] * 0.36 * (-0.40)
-    CPB_O = user_ocean[2] * (-0.52) + user_ocean[4] * 0.36 * (-0.41)
-    return CPB_I, CPB_O
+def CalCPBs(user_ocean):
+    # user_ocean； user_id, o,c,e,a,n
+    # O_Score, C_Score, E_Score, A_Score, N_Score
+    O_Score = user_ocean[1]
+    C_Score = user_ocean[2]
+    E_Score = user_ocean[3]
+    A_Score = user_ocean[4]
+    N_Score = user_ocean[5]
+    #CPB_1Score = A_Score * (-0.34) + A_Score * 0.36 * (-0.40)
+    #CPB_2Score = C_Score * (-0.52) + A_Score * 0.36 * (-0.41)
+    # CPB-I_Self = (-0.43) * A_Score + (-0.16) * C_Score + (-0.24) * -N_Score + 0.25 * E_Score + (-0.30) * O_Score
+    # CPB-O_Self = (-0.41) * A_Score + (-0.44) * C_Score + (-0.47) * -N_Score + (-0.12) * E_Score + (-0.25) * O_Score
+    CPB_1Score = (-0.43) * A_Score + (-0.16) * C_Score + (-0.24) * (-1 * N_Score) + 0.25 * E_Score + (-0.30) * O_Score
+    CPB_2Score = (-0.41) * A_Score + (-0.44) * C_Score + (-0.47) * (-1 * N_Score) + (-0.12) * E_Score + (-0.25) * O_Score
+    return CPB_1Score, CPB_2Score
+
 # 定义一个给定user与ldap_src，自动返回其组织结构OS信息的函数
 def Get_User_LDAP(user, f_ldap_lst):
     # 不考虑CEO的特征，因为CEO压根没有离职，也不是Insiders
@@ -61,9 +68,11 @@ def Get_User_LDAP(user, f_ldap_lst):
         line_lst = line.strip('\n').strip(',').split(',')
         # LDAP文件内容格式
         # employee_name,user_id,email,role,projects,business_unit,functional_unit,department,team,supervisor
+        # cert4.2 ldap格式
+        # employee_name,user_id,email,role,business_unit,functional_unit,department,team,supervisor
         if line_lst[1] == 'user_id':
             continue
-        if len(line_lst) < 10:
+        if len(line_lst) < 9:
             # CEO
             continue
         if line_lst[1] == user:
@@ -71,15 +80,15 @@ def Get_User_LDAP(user, f_ldap_lst):
             # 补充上了项目+LDAP信息
             # 项目信息用于日后分析备用
             user_ldap.append(user)
-            user_ldap.append(line_lst[4]) # projects
+            user_ldap.append(line_lst[4]) # BU
             user_ldap.append(line_lst[5])
             user_ldap.append(line_lst[6])
             user_ldap.append(line_lst[7])
-            user_ldap.append(line_lst[8]) # team
+            # user_ldap.append(line_lst[8]) # team
             break
     # print user, 'Project + LDAP提取完毕..\n', user_ldap, '\n'
     if Find_Label == True:
-        return user_ldap  # 6-format: user_id, project, bu, fu, dpt, team
+        return user_ldap  # 6-format: user_id, bu, fu, dpt, team
     else:
         return 'Not Found'
 
@@ -90,15 +99,15 @@ def Get_User_LC_Feat(user_id, lc_lst, month):
     user_lc_feat = []
 
     user_lcontacts = [] # 时间段内与目标用户关联的离职用户列表，用于后续计算dis_OCEAN/dis_OS
-    user_email_ratio = 0.0
+    #user_email_ratio = 0.0
     user_cnt_send = 0.0
-    user_cnt_recv = 0.0
+    #user_cnt_recv = 0.0
     user_send_size = 0.0
-    user_recv_size = 0.0
+    #user_recv_size = 0.0
     user_send_attach = 0.0
-    user_recv_attach = 0.0
+    #user_recv_attach = 0.0
     user_send_days = []
-    user_recv_days = []
+    #user_recv_days = []
 
     i = 0
     while i < len(lc_lst):
@@ -109,38 +118,47 @@ def Get_User_LC_Feat(user_id, lc_lst, month):
         # WMH1300,1.0,1.0,[2010-01-25],38275.0,0.0,0,[],0,0,1,0,
         # 2010-03:
         # MIB1265,1.0,1.0,[2010-03-05],26650.0,0.0,0,[],0,0,1,0,
-        if len(lc_0) == 1 and user_id + '_start' in lc_0[0]:
+        #
+        # cert4.2的格式为：
+        # <<AAE0190_Start>>
+        # 2010-06-08
+        # BVN0514,2.0,['2010-05-18'; '2010-06-04'],66643.0,0.0,
+        # BMS0877,1.0,['2010-02-16'],26175.0,0.0,
+        if len(lc_0) == 1 and user_id + '_Start' in lc_0[0]:
             index_s = i + 1
             while index_s < len(lc_lst):
                 lc_lst_0 = lc_lst[index_s].strip('\n').strip(',').split(',')
                 if len(lc_lst_0) == 1 and lc_lst_0[0].strip(':') > month:
                     print '超出的月份为：', user_id, lc_lst_0[0].strip(':'), '\n'
                     break
-                if len(lc_lst_0) == 1 and user_id + '_end' in lc_lst_0[0]:
+                if len(lc_lst_0) == 1 and user_id + '_End' in lc_lst_0[0]:
                     break
                 if len(lc_lst_0) > 1:
                     # 计算通信的天数，如果有重复，需要去掉重复的天
                     if lc_lst_0[0] not in user_lcontacts:
                         user_lcontacts.append(lc_lst_0[0])
-                    # MIB1265,1.0,1.0,[2010-03-05],26650.0,0.0,0,[],0,0,1,0,
+                    # <<AAE0190_Start>>
+                    # 2010-06-08
+                    # BVN0514,2.0,['2010-05-18'; '2010-06-04'],66643.0,0.0,
+                    # BMS0877,1.0,['2010-02-16'],26175.0,0.0,
                     # print 'test:', lc_lst_0, '\n'
-                    user_cnt_send += float(lc_lst_0[2])
-                    user_cnt_recv += float(lc_lst_0[6])
-                    user_send_size += float(lc_lst_0[4])
-                    user_recv_size += float(lc_lst_0[8])
-                    user_send_attach += float(lc_lst_0[5])
-                    user_recv_attach += float(lc_lst_0[9])
-                    for day in lc_lst_0[3].strip('[').strip(']').split(';'):
+                    user_cnt_send += float(lc_lst_0[1])
+                    #user_cnt_recv += float(lc_lst_0[6])
+                    user_send_size += float(lc_lst_0[3])
+                    #user_recv_size += float(lc_lst_0[8])
+                    user_send_attach += float(lc_lst_0[4])
+                    #user_recv_attach += float(lc_lst_0[9])
+                    for day in lc_lst_0[2].strip('[').strip(']').split(';'):
                         if len(day) == 0:
                             continue
                         if day not in user_send_days:
                             user_send_days.append(day)
-                    for day in lc_lst_0[7].strip('[').strip(']').split(';'):
-                        if len(day) == 0:
-                            continue
-                        if day not in user_recv_days:
-                            user_recv_days.append(day)
-                    print user_id, 'leave_contact:', lc_lst_0[0], user_send_days, user_recv_days, '\n'
+                    #for day in lc_lst_0[7].strip('[').strip(']').split(';'):
+                    #    if len(day) == 0:
+                    #        continue
+                    #    if day not in user_recv_days:
+                    #        user_recv_days.append(day)
+                    print user_id, 'leave_contact:', lc_lst_0[0], user_send_days, '\n'
                     index_s += 1
                     continue
                 else:
@@ -152,27 +170,27 @@ def Get_User_LC_Feat(user_id, lc_lst, month):
             i += 1
             continue
     user_lc_feat.append(user_id)
-    X = len(user_send_days)
-    Y = len(user_recv_days)
-    if X + Y > 0:
-        user_lc_feat.append(float(X - Y) / (X + Y))
-    else:
-        user_lc_feat.append(0.0)
+    #X = len(user_send_days)
+    #Y = len(user_recv_days)
+    #if X + Y > 0:
+    #    user_lc_feat.append(float(X - Y) / (X + Y))
+    #else:
+    #    user_lc_feat.append(0.0)
     user_lc_feat.append(user_cnt_send)
-    user_lc_feat.append(user_cnt_recv)
+    #user_lc_feat.append(user_cnt_recv)
     user_lc_feat.append(user_send_size)
-    user_lc_feat.append(user_recv_size)
+    #user_lc_feat.append(user_recv_size)
     user_lc_feat.append(user_send_attach)
-    user_lc_feat.append(user_recv_attach)
+    #user_lc_feat.append(user_recv_attach)
     user_lc_feat.append(float(len(user_send_days)))
-    user_lc_feat.append(float(len(user_recv_days)))
-    user_send_days.extend(user_recv_days)
+    #user_lc_feat.append(float(len(user_recv_days)))
+    #user_send_days.extend(user_recv_days)
     # [].extend()没有返回值，直接修改原列表
     #同理，对于直接修改原对象的方法而言，[].append()也没有返回值
-    user_email_days = set(user_send_days)
-    user_lc_feat.append(float(len(user_email_days)))
+    #user_email_days = set(user_send_days)
+    #user_lc_feat.append(float(len(user_email_days)))
     print user_id, 'email_feat提取完毕...\n'
-    return user_lcontacts, user_lc_feat # 12-format: user_id, email_ratio, cnt_send/recv, cnt_s/r_size, cnt_s/r_attach, cnt_s/r_days, cnt_email_days
+    return user_lcontacts, user_lc_feat # 12-format: user_id, cnt_send, cnt_size, cnt_s_attach, cnt_s_days
 
 def Cal_Distance_OCEAN(user_a_ocean, user_b_ocean):
     distance_a_b = 0.0
@@ -203,20 +221,18 @@ def Cal_Personality_Feat(user_a, user_lcontacts, f_ocean_lst):
     for lcontact in user_lcontacts:
         lc_ocean = Get_User_OCEAN(lcontact, f_ocean_lst)
         distance_ocean += Cal_Distance_OCEAN(user_a_ocean, lc_ocean)
-    user_cpb_i, user_cpb_o = Cal_CPB(user_a_ocean)
+    user_cpb_i, user_cpb_o = CalCPBs(user_a_ocean)
     user_p_feat = []
     user_p_feat.append(user_a)
     user_p_feat.extend(user_a_ocean[1:])
     user_p_feat.append(user_cpb_i)
     user_p_feat.append(user_cpb_o)
     user_p_feat.append(distance_ocean)
-    if len(user_lcontacts) > 0:
-        user_p_feat.append(distance_ocean / len(user_lcontacts))
-    else:
+    #if len(user_lcontacts) > 0:
+    #    user_p_feat.append(distance_ocean / len(user_lcontacts))
+    #else:
         # 默认处理方法：对于没有leave_contacts的用户，暂时先默认设置为0
-        user_p_feat.append(0.0)
-
-
+     #   user_p_feat.append(0.0)
     return user_p_feat  # [user_id, o, c, e, a, n, cpb-i, cpb-o, dis_ocean, avg_dis_ocean]
 
 def Cal_OS_Feat(user_a, user_lcontacts, f_ldap_lst):
@@ -228,20 +244,21 @@ def Cal_OS_Feat(user_a, user_lcontacts, f_ldap_lst):
         lc_ldap = Get_User_LDAP(lcontact, f_ldap_lst)
         dis_ladp = Cal_Distance_LDAP(user_a_ldap, lc_ldap)
         distance_ldap += dis_ladp
-    if len(user_lcontacts) == 0:
-        return dis_ladp, 0.0
-    else:
-        return dis_ladp, dis_ladp / len(user_lcontacts)
+    #if len(user_lcontacts) == 0:
+        #return dis_ladp, 0.0
+    #else:
+        #return dis_ladp, dis_ladp / len(user_lcontacts)
+    return distance_ldap
 
 class JS_SVM_Predictor():
 
     # 定义构造函数：
     # 1. 训练目录、验证目录以及测试目录的生成；
     # 2. 对应目录下，出勤率的统计以及离职用户列表的复制整理
-    def __init__(self, src_dir, dst_dir): # 主要功能：重要数据复制，以及月份目录创建
+    def __init__(self, dst_dir): # 主要功能：重要数据复制，以及月份目录创建
         # 数据与结果目录，确保存在
-        self.Dst_Dir = dst_dir
-        self.Src_Dir = src_dir
+        self.Dst_Dir = sys.path[0]
+        #self.Src_Dir = src_dir
         if os.path.exists(dst_dir) == False:
             os.mkdir(self.Dst_Dir)
 
@@ -249,12 +266,12 @@ class JS_SVM_Predictor():
         self.Leave_Users = [] # CERT5.2中离职用户
         self.Leave_Users_Time = [] # 对应于离职用户的离职时间，具体到了天
         self.Month_lst = []
-        f_leave_months = open(dst_dir + '\\' + 'CERT5.2-LaidOff-Users_OnDays_0.6.csv', 'r')
+        f_leave_months = open(self.Dst_Dir + '\\' + 'CERT4.2-Leave-Users_OnDay_0.9.csv', 'r')
         f_lm_lst = f_leave_months.readlines()
         f_leave_months.close()
         for line in f_lm_lst:
             # data like:
-            # Laid off Users in CERT5.2 from 2009-12 to 2011-05
+            # Laid off Users in CERT5.2 from 2009-12 to 2011-04
             # RMB1821,2010-02-09,ldap
             line_lst = line.strip('\n').strip(',').split(',')
             if len(line_lst) < 2:
@@ -268,129 +285,65 @@ class JS_SVM_Predictor():
             self.Leave_Users_Time.append(tmp_lu)
         self.Month_lst.insert(0,'2010-01') # 补充上没有用户离职的2010-01
         print 'CERT5.2月份提取完毕：', self.Month_lst, '\n'
+        #
+        # 按月提取离职用户数据
+        self.Leave_Users_Months = [[] for i in range(16)]
+        i = 0
+        while i < 16:
+            month_0 = self.Month_lst[i]
+            for line_lu in f_lm_lst:
+                line_lst = line_lu.strip('\n').strip(',').split(',')
+                if len(line_lst) < 2:
+                    continue
+                if line_lst[1][:7] == month_0:
+                    self.Leave_Users_Months[i].append(line_lst)
+            i += 1
+        # 同步在对应位置写入当月离职用户信息
+        j = 0
+        while j < 16:
+            f_leave_user_month = open(self.Dst_Dir + '\\' + self.Month_lst[j] + '\\' + self.Month_lst[j] + '_Leave_Users.csv', 'w')
+            for lu_month in self.Leave_Users_Months[j]:
+                for ele in lu_month:
+                    f_leave_user_month.write(ele + ',')
+                f_leave_user_month.write('\n')
+            f_leave_user_month.close()
+            print self.Month_lst[j], 'Leave Users提取写入完毕..\n'
+            j += 1
 
-        # 提取CERT5.2中所有用户的Leave_Contacts信息
+        # 提取CERT4.2中所有用户的Leave_Contacts信息
         # 数据文件self.*_lst基本提供的都是原始行读入文件
         # 数据涉及LDAP/OCEAN/LC等
         # self.CERT52_LC_lst
         #
-        f_LC = open(self.Dst_Dir + '\\' + 'CERT5.2_Users_LeaveContacts_EmailFeats.csv', 'r')
-        self.CERT52_LC_lst = f_LC.readlines()
+        f_LC = open(self.Dst_Dir + '\\' + 'CERT4.2_Users_LeaveContacts_EmailFeats.csv', 'r')
+        self.CERT42_LC_lst = f_LC.readlines()
         f_LC.close()
         # 提取CERT52用户的LDAP信息
-        f_LDAP = open(self.Dst_Dir + '\\' + '2009-12.csv', 'r')
-        self.CERT52_LDAP_lst = f_LDAP.readlines()
+        f_LDAP = open(os.path.dirname(self.Dst_Dir) + '\\' + 'CERT4.2-2009-12.csv', 'r')
+        self.CERT42_LDAP_lst = f_LDAP.readlines()
         f_LDAP.close()
         # 提取CERT5.2用户的OCEAN信息
-        f_OCEAN = open(self.Dst_Dir + '\\' + 'psychometric-5.2.csv', 'r')
-        self.CERT52_OCEAN_lst = f_OCEAN.readlines()
+        f_OCEAN = open(os.path.dirname(self.Dst_Dir) + '\\' + 'CERT4.2-psychometric.csv', 'r')
+        self.CERT42_OCEAN_lst = f_OCEAN.readlines()
         f_OCEAN.close()
 
-        # 建立训练目录、验证目录与测试目录
-        # 训练目录：数据涵盖2010-01：2010-04
-        # 验证目录：数据涵盖2010-05
-        # 测试目录：数据分别涵盖2010-06:2011-05
-        self.Train_Dir = dst_dir + '\\' + 'Train_Dir'
-        if os.path.exists(self.Train_Dir) == False:
-            os.mkdir(self.Train_Dir)
-        self.Validate_Dir = dst_dir + '\\' + 'Validate_Dir'
-        if os.path.exists(self.Validate_Dir) == False:
-            os.mkdir(self.Validate_Dir)
-        for month in self.Month_lst[5:]:
-            month_path = dst_dir + '\\' + month
-            if os.path.exists(month_path) == False:
-                os.mkdir(month_path)
-        print 'CERT5.2分析月份目录构建完毕..\n'
-
-
-
-    def Data_Copy(self):
-        # 将原先的出勤统计数据，分别组合拷贝到新的目录下(2个/月）
-        # 将原先离职用户列表，分别拷贝到新的目录下（1个/月）
-        # 首先是拷贝出勤数据
-        # 1. 每月的logon数据容易拷贝，为了便于分析，分月拷贝；
-        # 2. 出勤率统计需要进行累加重新组合
-        Train_Months = self.Month_lst[:4]
-        for month in Train_Months:
-            src_month_path = self.Src_Dir + '\\' + month
-            dst_train_path = self.Train_Dir
-            for file in os.listdir(src_month_path):
-                # 2010-10_logon_data.csv
-                # 2010-10_early_late_team_feats.csv
-                # Leave_Users_2010-02.csv
-                if file == month + '_logon_data.csv' or file == month + '_early_late_team_feats.csv':
-                    file_path = src_month_path + '\\' + file
-                    shutil.copy(file_path, self.Train_Dir)
-                if file == 'Leave_Users_' + month + '.csv':
-                    file_path = src_month_path + '\\' + file
-                    shutil.copy(file_path, self.Train_Dir)
-        # 2010-01：2010-04的训练集合的登录出勤数据拷贝完毕
-        # 接下来需要计算合并后的训练集出勤特征
-        self.Train_LED_Feats = []
-        self.CERT52_Users = []
-        for file in os.listdir(self.Train_Dir):
-            if '_early_late_team_feats.csv' in file:
-                file_path = self.Train_Dir + '\\' + file
-                f_led = open(file_path, 'r')
-                for line_led in f_led.readlines():
-                    # data like:
-                    # AMC0265,6.5,18.5,7.0,2.0,21,-1
-                    # ERB0921,6.5,18.0,11.0,2.0,21,1,2010-10-11,
-                    line_led_lst = line_led.strip('\n').strip(',').split(',')
-                    if line_led_lst[0] not in self.CERT52_Users:
-                        self.CERT52_Users.append(line_led_lst[0])
-                        tmp_0 = []
-                        tmp_0.append(line_led_lst[0])
-                        for ele in line_led_lst[1:6]:
-                            tmp_0.append(float(ele))
-                        self.Train_LED_Feats.append(tmp_0)
-                    else:
-                        user_index = self.CERT52_Users.index(line_led_lst[0])
-                        # 迟到天数
-                        self.Train_LED_Feats[user_index][3] += float(line_led_lst[3])
-                        # 早退天数
-                        self.Train_LED_Feats[user_index][4] += float(line_led_lst[4])
-                        # 工作天数
-                        self.Train_LED_Feats[user_index][5] += float(line_led_lst[5])
-                print file, '训练集LED特征已分析..\n'
-                f_led.close()
-            else:
+        # 初始化一个最初的完整1000用户的CERT42_Users
+        self.CERT42_Users = []
+        for line_psn in self.CERT42_OCEAN_lst:
+            # employee_name,user_id,O,C,E,A,N
+            # Calvin Edan Love,CEL0561,40,39,36,19,40
+            line_lst = line_psn.strip('\n').strip(',').split(',')
+            if line_lst[1] == 'user_id':
                 continue
-        print '训练集CERT5.2用户出勤率累积分析完毕..\n'
-        for i in range(5):
-            print i, self.Train_LED_Feats[i], '\n'
-        # 重新写入：
-        f_Train_LED = open(self.Train_Dir + '\\' + 'CERT5.2_Train_LaidOff_LED_OnTeam_v01.csv', 'w')
-        for feat in self.Train_LED_Feats:
-            for ele in feat:
-                f_Train_LED.write(str(ele))
-                f_Train_LED.write(',')
-            f_Train_LED.write('\n')
-        f_Train_LED.close()
-        print '训练集CERT5.2用户出勤率结果保存完毕..\n'
-
-        # 接下来开始拷贝验证集与测试集的logon.data以及LED数据
-        for month in self.Month_lst[4:]:
-            src_month_path = self.Src_Dir + '\\' + month
-            if month == '2010-05':
-                dst_train_path = self.Validate_Dir
             else:
-                dst_train_path = self.Dst_Dir + '\\' + month
-            for file in os.listdir(src_month_path):
-                # 2010-10_logon_data.csv
-                # 2010-10_early_late_team_feats.csv
-                # Leave_Users_2010-02.csv
-                if file == month + '_logon_data.csv' or file == month + '_early_late_team_feats.csv':
-                    file_path = src_month_path + '\\' + file
-                    shutil.copy(file_path, dst_train_path)
-                if file == 'Leave_Users_' + month + '.csv':
-                    file_path = src_month_path + '\\' + file
-                    shutil.copy(file_path, dst_train_path)
-        print '2010-05：2011-05的Logon.data/LED/Leave_Users数据拷贝完毕..\n'
+                self.CERT42_Users.append(line_lst[1])
+        print 'CERT4.2分析月份目录构建完毕..\n'
+
+
     ####################################################################
     ####################################################################
-    # CERT5.2的JS特征提取函数
-    # CERT5.2用户的JS特征：
+    # CERT4.2的JS特征提取函数
+    # CERT4.2用户的JS特征：
     # 1. user_id:
     # 2. OCEAN分数；
     # 3. CPB-I/CPB-O分数；
@@ -398,97 +351,76 @@ class JS_SVM_Predictor():
     # 5. 与离职员工群体的人格差异：Distance_OCEAN
     # 6. 与离职员工群体的组织差异：Distance_OS
     # 7. 与离职员工群体通信特征;
-    # 7.1 Cnt_Send_Emails, Cnt_Recv_Emails
-    # 7.2 Send_Size, Recv_Size
-    # 7.3 Cnt_Send_Attach, Cnt_Recv_Attach
-    # 7.4 Cnt_Send_Days, Cnt_Recv_Days
-    # 7.5 Cnt_Email_Days
+    # 7.1 Cnt_Send_Emails,
+    # 7.2 Send_Size,
+    # 7.3 Cnt_Send_Attach,
+    # 7.4 Cnt_Send_Days,
+
     #
-    # Extract_JS_Feat函数将为预测器提供输入与输出支持
-    # 一个目录中应包含的数据文件：
-    # 1. 预测器的输入：用户的JS特征
-    # 2. 预测器参数；
-    # 3. 预测器的输出结果判定（类别及判断距离）
-    # 4. Ground Truth标记
-    # 5. 预测器的效果Assessment
-    def Extract_JS_Feats(self, type):
+    # Extract_JS_Feat函数
+    # 为每个月的工作用户提供其当月的LCE特征，且同步生成当月离职用户列表
+    def Extract_JS_Feats(self, month):
         # type用于标识是训练集、验证集还是测试集
         # Extract_JS_Feats模块用于获取预测器的输入以及GroundTruth
-        # 前期已经获取了CERT5.2中的self.Leave_Users与self.Leave_Users_Time
+        # 前期已经获取了CERT4.2中的self.Leave_Users与self.Leave_Users_Time
+        CERT42_Users_Month_JS_Feats = []
+        for user in self.CERT42_Users[:]:
+            print '开始分析用户', user, '\n'
+            # 开始构造该用户的JS特征
+            if Get_User_LDAP(user, self.CERT42_LDAP_lst) == 'Not Found':
+                print user, 'LDAP长度不标准...\n'
+                continue
+            else:
+                print user, '首先提取用户的LC_Feat\n'
+                user_lcontacts, user_lc_feat = Get_User_LC_Feat(user, self.CERT42_LC_lst, month)
+                print user, '提取用户的OCEAN_Feat\n'
+                user_p_feat = Cal_Personality_Feat(user, user_lcontacts, self.CERT42_OCEAN_lst)
+                print user, '提取用户的OS_Feat\n'
+                dis_ldap = Cal_OS_Feat(user, user_lcontacts, self.CERT42_LDAP_lst)
 
-        if type == 'Train':
-            # 我们先来计算训练集的GroundTruth
-            self.TrainSet_GT = []
-            for user in self.CERT52_Users:
-                if user in self.Leave_Users and self.Leave_Users_Time[self.Leave_Users.index(user)][1][:7] < '2010-05':
-                    tmp_gt = []
-                    tmp_gt.append(user)
-                    # SVM输出+1与-1
-                    tmp_gt.append(0)
-                    self.TrainSet_GT.append(tmp_gt)
-                else:
-                    tmp_gt = []
-                    tmp_gt.append(user)
-                    tmp_gt.append(1)
-                    self.TrainSet_GT.append(tmp_gt)
-            f_Train_GT = open(self.Train_Dir + '\\' + 'TrainSet_GroundTruth.csv_v01.csv', 'w')
-            for user_gt in self.TrainSet_GT:
-                for ele in user_gt:
-                    f_Train_GT.write(str(ele))
-                    f_Train_GT.write(',')
-                f_Train_GT.write('\n')
-            f_Train_GT.close()
-            print 'TrainSet的Ground Truth计算完毕..\n'
+                # user_p_feat: [user_id, o, c, e, a, n, cpb-i, cpb-o, dis_ocean, avg_dis_ocean]
+                # user_lc_feat: # 12-format: user_id, email_ratio, cnt_send/recv, cnt_s/r_size, cnt_s/r_attach, cnt_s/r_days, cnt_email_days
+                # user_oc_feat: dis_ldap, avg_dis_ldap
+                user_js_feat = []
+                user_js_feat.extend(user_p_feat)
+                user_js_feat.append(dis_ldap)
+                #user_js_feat.append(avg_dis_ldap)
+                user_js_feat.extend(user_lc_feat[1:])
+                CERT42_Users_Month_JS_Feats.append(user_js_feat)
+                print user, 'Until', month, 'js feat is like: ', user_js_feat, '\n\n'
 
-            # 开始构造CERT5.2用户训练集的JS特征
-            # 首先是OCEAN特征
-            f_OCEAN = open(self.Dst_Dir + '\\' + 'psychometric-5.2.csv', 'r')
-            self.CERT52_OCEAN_lst = f_OCEAN.readlines()
-            f_OCEAN.close()
-            print 'CERT5.2用户OCEAN分数读取完毕..\n'
+        # 特征写入
+        f_JS_Feats = open(self.Dst_Dir + '\\' + month + '\\' + month + '_CERT4.2_LCE_Feats-0.1.csv', 'w')
+        # 这里既然将LC当做一个整体，就不再考虑均值
+        f_JS_Feats.write('user_id, o, c, e, a, n, cpb-i, cpb-o, dis_ocean, dis_os, email_ratio, cnt_send, cnt_s_size, cnt_s_attach, cnt_s_days\n')
+        for line in CERT42_Users_Month_JS_Feats:
+            for ele in line:
+                f_JS_Feats.write(str(ele))
+                f_JS_Feats.write(',')
+            f_JS_Feats.write('\n')
+        f_JS_Feats.close()
+        print month, 'CERT4.2 JS Feats Write Done...\n\n'
 
-            CERT52_Users_Train_JS_Feats = []
-            for user in self.CERT52_Users[:]:
-                print '开始分析用户', user, '\n'
-                # 开始构造该用户的JS特征
-                if Get_User_LDAP(user, self.CERT52_LDAP_lst) == 'Not Found':
-                    print user, 'LDAP长度不标准...\n'
-                    continue
-                else:
-                    print user, '首先提取用户的LC_Feat\n'
-                    user_lcontacts, user_lc_feat = Get_User_LC_Feat(user, self.CERT52_LC_lst, '2010-04')
-                    print user, '提取用户的OCEAN_Feat\n'
-                    user_p_feat = Cal_Personality_Feat(user, user_lcontacts, self.CERT52_OCEAN_lst)
-                    print user, '提取用户的OS_Feat\n'
-                    dis_ldap, avg_dis_ldap = Cal_OS_Feat(user, user_lcontacts, self.CERT52_LDAP_lst)
+    def Update_CERT42_Users(self, month):
+        # month过后需要更新self.CERT42_Users以便于下个月继续提取LCE特征
+        month_index = self.Month_lst.index(month)
+        for lc in self.Leave_Users_Months[month_index]:
+            self.CERT42_Users.remove(lc[0])
+        print month, 'Update : CERT42_Users has Users', len(self.CERT42_Users), '\n'
 
-                    # user_p_feat: [user_id, o, c, e, a, n, cpb-i, cpb-o, dis_ocean, avg_dis_ocean]
-                    # user_lc_feat: # 12-format: user_id, email_ratio, cnt_send/recv, cnt_s/r_size, cnt_s/r_attach, cnt_s/r_days, cnt_email_days
-                    # user_oc_feat: dis_ldap, avg_dis_ldap
-                    user_js_feat = []
-                    user_js_feat.extend(user_p_feat)
-                    user_js_feat.append(dis_ldap)
-                    user_js_feat.append(avg_dis_ldap)
-                    user_js_feat.extend(user_lc_feat[1:])
-                    CERT52_Users_Train_JS_Feats.append(user_js_feat)
-                    print user, 'Until 2010-04, js feat is like: ', user_js_feat, '\n\n'
 
-            # 特征写入
-            f_Train_JS_Feats = open(self.Train_Dir + '\\' + 'CERT5.2_Train_JS_Feats-0.1.csv', 'w')
-            f_Train_JS_Feats.write('user_id, o, c, e, a, n, cpb-i, cpb-o, dis_ocean, avg_dis_ocean, dis_os, avg_dis_os, email_ratio, cnt_send/recv, cnt_s/r_size, cnt_s/r_attach, cnt_s/r_days, cnt_email_days\n')
-            for line in CERT52_Users_Train_JS_Feats:
-                for ele in line:
-                    f_Train_JS_Feats.write(str(ele))
-                    f_Train_JS_Feats.write(',')
-                f_Train_JS_Feats.write('\n')
-            f_Train_JS_Feats.close()
-            print 'CERT5.2 TrainSet JS Feats Write Done...\n\n'
 
-        if type == 'Validate':
-            pass
-        if type == 'Test':
-            pass
+#
+#
+# 按月提取LCE特征的主程序代码
+LCE_obj = JS_SVM_Predictor(sys.path[0])
 
+# 接下来开始按月提取LCE特征
+Months_lst = ['2010-01', '2010-02','2010-03','2010-04','2010-05','2010-06','2010-07','2010-08','2010-09','2010-10','2010-11','2010-12', '2011-01', '2011-02', '2011-03', '2011-04']
+# 不处理2011-05
+for month in Months_lst[:]:
+    LCE_obj.Extract_JS_Feats(month)
+    LCE_obj.Update_CERT42_Users(month)
 
 
 

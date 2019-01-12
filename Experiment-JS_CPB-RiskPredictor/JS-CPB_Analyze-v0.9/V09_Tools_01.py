@@ -108,3 +108,75 @@ if Flag_1:
 # 判断CERT4.2中三类Insiders的离职时间，以判断是否需要考虑2011-05的离职用户
 # r4.2-1
 # 顺便生成三类Insiders的用户列表代码，以及各自离职时间
+
+
+#
+#
+# 从CERT4.2中的Insiders列表与Leave_Users列表中获取输入三个Insiders的离职日期
+# 格式为
+# KEW0198,2010-07-29,
+# DAS1320,2010-07-30,
+def Extract_Insiders(insiders_dir):
+    insiders= []
+    for file in os.listdir(insiders_dir):
+        # r4.2-1-AAM0658.csv
+        # print file, '\n'
+        insiders.append(file[7:14])
+    return insiders
+Flag_2 = True
+if Flag_2:
+    # 首先获取CERT4.2中的Insiders列表
+    Insiders_1 = Extract_Insiders(os.path.dirname(sys.path[0]) + '\\' + 'r4.2-1')
+    Insiders_2 = Extract_Insiders(os.path.dirname(sys.path[0]) + '\\' + 'r4.2-2')
+    Insiders_3 = Extract_Insiders(os.path.dirname(sys.path[0]) + '\\' + 'r4.2-3')
+    print 'Insiders 1 like: ', Insiders_1[:3], '\n'
+    print 'Insiders 2 like: ', Insiders_2[:3], '\n'
+    print 'Insiders 3 like: ', Insiders_3[:3], '\n'
+    #
+    # 获取离职用户列表
+    f_leave = open(sys.path[0] + '\\' + 'CERT4.2-Leave-Users_OnDay_0.9.csv', 'r')
+    Leave_Users = []
+    for line_le in f_leave.readlines():
+        line_lst = line_le.strip('\n').strip(',').split(',')
+        if len(line_lst) < 2:
+            continue
+        leave_tmp = []
+        leave_tmp.append(line_lst[0])
+        leave_tmp.append(line_lst[1])
+        Leave_Users.append(leave_tmp)
+    print 'Leave_Users is like', Leave_Users[:3], '\n'
+    #
+    # 开始生成三个Insiders的列表
+    # Insiders-1_Leave.csv
+    f_2 = open(sys.path[0] + '\\' + 'Insiders-2_Leave.csv', 'w')
+    for insider in Insiders_2:
+        for leaver in Leave_Users:
+            if insider != leaver[0]:
+                continue
+            else:
+                f_2.write(leaver[0] + ',')
+                f_2.write(leaver[1] + '\n')
+    f_2.close()
+    print 'Insiers_2 写入完毕..\n'
+
+    f_1 = open(sys.path[0] + '\\' + 'Insiders-1_Leave.csv', 'w')
+    for insider in Insiders_1:
+        for leaver in Leave_Users:
+            if insider != leaver[0]:
+                continue
+            else:
+                f_1.write(leaver[0] + ',')
+                f_1.write(leaver[1] + '\n')
+    f_1.close()
+    print 'Insiers_1 写入完毕..\n'
+
+    f_3 = open(sys.path[0] + '\\' + 'Insiders-3_Leave.csv', 'w')
+    for insider in Insiders_3:
+        for leaver in Leave_Users:
+            if insider != leaver[0]:
+                continue
+            else:
+                f_3.write(leaver[0] + ',')
+                f_3.write(leaver[1] + '\n')
+    f_3.close()
+    print 'Insiers_3 写入完毕..\n'

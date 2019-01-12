@@ -135,7 +135,7 @@ for file in os.listdir(Email_Dir)[:]:
                 else:
                     # 已经不是第一次联系该用户了
                     # 需要定位后，更新原始特征数据即可
-                    # # 当前数据格式：date,user,pc,to,cc,bcc,from,activity,size,attachments
+                    # # 当前数据格式：date,user,pc,to,cc,bcc,from,size,attachments
                     index_0 = send_users.index(user_id)
                     send_feat[index_0][0] += 1.0
                     if date not in send_feat[index_0][1]:

@@ -114,7 +114,10 @@ if Flag_0:
                     cnt_attach += float(line_emls_0[8])
                     cnt_size += float(line_emls_0[7])
                     # date 格式：01/04/2010 08:19:15
-                    send_days.append(line_emls_0[0][6:10] + '-' + line_emls_0[0][:2] + '-' + line_emls_0[0][3:5])
+                    date = line_emls_0[0][6:10] + '-' + line_emls_0[0][:2] + '-' + line_emls_0[0][3:5]
+                    if date not in send_days:
+                        send_days.append(date)
+                    #send_days.append(line_emls_0[0][6:10] + '-' + line_emls_0[0][:2] + '-' + line_emls_0[0][3:5])
                     # print send_days, '\n'
                     # 验证通过
                     #
@@ -163,7 +166,7 @@ if Flag_1:
                 # 2010-06-08,BVN0514,2.0,['2010-05-18'; '2010-06-04'],66643.0,0.0
                 if line_lst[0][:7] not in lc_months:
                     lc_months.append(line_lst[0][:7])
-                    f_lce.write(line_lst[0] + '\n')
+                    f_lce.write(line_lst[0][:7] + '\n')
                     for ele in line_lst[1:]:
                         f_lce.write(ele + ',')
                     f_lce.write('\n')
