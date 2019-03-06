@@ -126,15 +126,16 @@ def Extract_Insiders(insiders_dir):
 Flag_2 = True
 if Flag_2:
     # 首先获取CERT4.2中的Insiders列表
-    Insiders_1 = Extract_Insiders(os.path.dirname(sys.path[0]) + '\\' + 'r4.2-1')
-    Insiders_2 = Extract_Insiders(os.path.dirname(sys.path[0]) + '\\' + 'r4.2-2')
-    Insiders_3 = Extract_Insiders(os.path.dirname(sys.path[0]) + '\\' + 'r4.2-3')
+    Insiders_1 = Extract_Insiders(r'G:\GitHub\Essay-Experiments\Experiment-JobSatisfactory-201808' + '\\' + 'r5.2-1')
+    Insiders_2 = Extract_Insiders(r'G:\GitHub\Essay-Experiments\Experiment-JobSatisfactory-201808' + '\\' + 'r5.2-2')
+    Insiders_3 = Extract_Insiders(r'G:\GitHub\Essay-Experiments\Experiment-JobSatisfactory-201808' + '\\' + 'r5.2-3')
     print 'Insiders 1 like: ', Insiders_1[:3], '\n'
     print 'Insiders 2 like: ', Insiders_2[:3], '\n'
     print 'Insiders 3 like: ', Insiders_3[:3], '\n'
     #
     # 获取离职用户列表
-    f_leave = open(sys.path[0] + '\\' + 'CERT4.2-Leave-Users_OnDay_0.9.csv', 'r')
+    dst_52_dir = r'G:\GitHub\Essay-Experiments\Experiment-JobSatisfactory-201808\PythonCode0\JS-Risks_Analyze-0.9'
+    f_leave = open(dst_52_dir + '\\' + 'CERT5.2-Leave-Users_OnDays_0.6.csv', 'r')
     Leave_Users = []
     for line_le in f_leave.readlines():
         line_lst = line_le.strip('\n').strip(',').split(',')
@@ -148,7 +149,7 @@ if Flag_2:
     #
     # 开始生成三个Insiders的列表
     # Insiders-1_Leave.csv
-    f_2 = open(sys.path[0] + '\\' + 'Insiders-2_Leave.csv', 'w')
+    f_2 = open(dst_52_dir + '\\' + 'Insiders-2_Leave.csv', 'w')
     for insider in Insiders_2:
         for leaver in Leave_Users:
             if insider != leaver[0]:
@@ -159,7 +160,7 @@ if Flag_2:
     f_2.close()
     print 'Insiers_2 写入完毕..\n'
 
-    f_1 = open(sys.path[0] + '\\' + 'Insiders-1_Leave.csv', 'w')
+    f_1 = open(dst_52_dir + '\\' + 'Insiders-1_Leave.csv', 'w')
     for insider in Insiders_1:
         for leaver in Leave_Users:
             if insider != leaver[0]:
@@ -170,7 +171,7 @@ if Flag_2:
     f_1.close()
     print 'Insiers_1 写入完毕..\n'
 
-    f_3 = open(sys.path[0] + '\\' + 'Insiders-3_Leave.csv', 'w')
+    f_3 = open(dst_52_dir + '\\' + 'Insiders-3_Leave.csv', 'w')
     for insider in Insiders_3:
         for leaver in Leave_Users:
             if insider != leaver[0]:
@@ -180,3 +181,32 @@ if Flag_2:
                 f_3.write(leaver[1] + '\n')
     f_3.close()
     print 'Insiers_3 写入完毕..\n'
+
+    print '生成Static模式下CERT4.2的GroundTruth标签..\n'
+    Dst_Dir = sys.path[0] + '\\' + 'KMeans_OCSVM_Insiders_Predictor'
+    # CERT4.2_Leave_Static_CPB_ATF-0.1.csv
+    f_S_ATF = open(Dst_Dir + '\\' + 'CERT5.2_Static_CPB_ATF-0.1.csv', 'r')
+    CERT42_Users = []
+    for line in f_S_ATF.readlines():
+        line_lst = line.strip('\n').strip(',').split(',')
+        if line_lst[0] == 'user_id':
+            continue
+        CERT42_Users.append(line_lst[0])
+    CERT42_Labels = []
+    for user in CERT42_Users:
+        if user in Insiders_1 or user in Insiders_2 or user in Insiders_3:
+            label = []
+            label.append(user)
+            label.append(1)
+            CERT42_Labels.append(label)
+        else:
+            label = []
+            label.append(user)
+            label.append(-1)
+            CERT42_Labels.append(label)
+    f_GT = open(Dst_Dir + '\\' + 'CERT52_GroundTruth.csv', 'w')
+    for line in CERT42_Labels:
+        for ele in line:
+            f_GT.write(str(ele) + ',')
+        f_GT.write('\n')
+    f_GT.close()

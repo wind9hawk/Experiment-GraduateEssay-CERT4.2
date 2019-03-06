@@ -11,7 +11,7 @@ Dst_Dir = sys.path[0]
 # 读取离职用户列表，并依据离职日期匹配选择要读入的ATF数据目录
 CERT52_Static_ATF_lst = []
 CERT52_Static_Users = []
-f_init = open(Dst_Dir + '\\' + '2011-04' + '\\' + 'CERT4.2_Leave_ATF_0.1.csv', 'r')
+f_init = open(Dst_Dir + '\\' + '2011-04' + '\\' + 'CERT4.2_Leave_ATF_02.csv', 'r')
 for line in f_init.readlines():
     line_lst = line.strip('\n').strip(',').split(',')
     if line_lst[0] == 'user_id':
@@ -43,7 +43,7 @@ for user_feat in Leave_Users:
     if user_feat[0] in CERT52_Static_Users:
         continue
     leave_month = user_feat[1][:7]
-    f_leave_month = open(Dst_Dir + '\\' + leave_month + '\\' + 'CERT4.2_Leave_ATF_0.1.csv', 'r')
+    f_leave_month = open(Dst_Dir + '\\' + leave_month + '\\' + 'CERT4.2_Leave_ATF_02.csv', 'r')
     for line in f_leave_month.readlines():
         line_lst = line.strip('\n').strip(',').split(',')
         if line_lst[0] == 'user_id':
@@ -60,7 +60,7 @@ print '重新写入全局静态ATF..\n'
 Dst_Dir_0 = Dst_Dir + '\\' + 'KMeans_OCSVM_Insiders_Predictor'
 if os.path.exists(Dst_Dir_0) == False:
     os.mkdir(Dst_Dir_0)
-f_static_atf = open(Dst_Dir_0 + '\\' + 'CERT4.2_Leave_Static_CPB_ATF-0.1.csv', 'w')
+f_static_atf = open(Dst_Dir_0 + '\\' + 'CERT4.2_Leave_Static_CPB_ATF-02.csv', 'w')
 feat_flag_0 = [] #去掉OCEAN部分
 feat_flag_0.append(feat_flag[0])
 for ele in feat_flag[6:]:

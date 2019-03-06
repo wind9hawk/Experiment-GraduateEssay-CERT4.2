@@ -63,7 +63,7 @@ print '....<<<<由CPBs与LCE特征共同构建ATF>>>>....\n\n'
 print '..<<数据准备>>..\n'
 Months_lst = ['2010-01', '2010-02','2010-03','2010-04','2010-05','2010-06','2010-07','2010-08','2010-09','2010-10','2010-11','2010-12', '2011-01', '2011-02', '2011-03', '2011-04', '2011-05']
 Dst_Dir = sys.path[0]
-f_CPBs = open(Dst_Dir + '\\' + 'CERT4.2-2009-12-New-26JS.csv', 'r')
+f_CPBs = open(Dst_Dir + '\\' + 'CERT4.2-200912-New-26JS-0.11.csv', 'r')
 f_CPBs_lst = f_CPBs.readlines()
 f_CPBs.close()
 CPBs_Users = []
@@ -97,7 +97,7 @@ for file in os.listdir(Dst_Dir):
     if os.path.isdir(Dst_Dir + '\\' + file) is True and '-' in file: #不分析.idea目录
         month_path = Dst_Dir + '\\' + file
         # 在该目录下找这个文件CERT5.2_Month_AvgLC_JS_Feats_v01.csv
-        lce_feat_path = month_path + '\\' + file + '_CERT4.2_LCE_Feats-0.1.csv'
+        lce_feat_path = month_path + '\\' + file + '_CERT4.2_LCE_Feats-02.csv'
         if os.path.exists(lce_feat_path) == False:
             print file, '不存在Leave Contacts特征，跳过..\n' # 跳过了cert4.2的2011-05
             continue
@@ -151,7 +151,7 @@ for file in os.listdir(Dst_Dir):
                     print lce_feats[i], 'Lost CPBs but with LCE..\n'
                     i += 1
                     continue
-            f_atf_path = month_path + '\\' + 'CERT4.2_Leave_ATF_0.1.csv'
+            f_atf_path = month_path + '\\' + 'CERT4.2_Leave_ATF_02.csv'
             f_atf = open(f_atf_path, 'w')
             f_atf.write('user_id' + ',')
             # 首先写入标签
@@ -160,7 +160,7 @@ for file in os.listdir(Dst_Dir):
             fragments.extend(['CPB-I', 'CPB-O', 'JS_Score'])
             fragments.extend(['Team_CPB-I-mean', 'Team_CPB-O-mean', 'Users-less-mean-A', 'Users-less-mean-A and C', 'Users-less-mean-C', 'Users-High-mean-N', 'Team_CPB-I-median', 'Team_CPB-O-median'])
             fragments.extend(['leader-CPB-I', 'leader-CPB-O'])
-            fragments.extend(['dis_ocean',  'dis_os',   'cnt_send', 'cnt_send_size', 'cnt_send_attach', 'cnt_send_days', 'cnt_email_days'])
+            fragments.extend(['dis_ocean',  'avg_dis_ocean', 'dis_os', 'avg_dis_os', 'cnt_send', 'cnt_send_size', 'cnt_send_attach', 'cnt_send_days', 'cnt_email_days'])
             fragments.extend(['cnt_late_days', 'cnt_early_days', 'month_work_days'])
             for ele in fragments:
                 f_atf.write(ele + ',')

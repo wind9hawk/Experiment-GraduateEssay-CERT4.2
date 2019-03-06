@@ -198,7 +198,8 @@ def Cal_Distance_OCEAN(user_a_ocean, user_b_ocean):
     while i < len(user_a_ocean):
         distance_a_b += math.pow(user_a_ocean[i] - user_b_ocean[i], 2)
         i += 1
-    distance_a_b = math.pow(distance_a_b, 0.5)
+    # distance_a_b = math.pow(distance_a_b, 0.5)
+    distance_a_b = math.pow(math.log(math.e + math.pow(distance_a_b, 0.5), math.e), -1)
     return distance_a_b
 
 def Cal_Distance_LDAP(user_a_ldap, user_b_ldap):
@@ -211,6 +212,7 @@ def Cal_Distance_LDAP(user_a_ldap, user_b_ldap):
         else:
             distance_a_b += 0
             i += 1
+    distance_a_b = math.pow(math.log(math.e + distance_a_b, math.e), -1)
     return distance_a_b
 
 
@@ -228,11 +230,12 @@ def Cal_Personality_Feat(user_a, user_lcontacts, f_ocean_lst):
     user_p_feat.append(user_cpb_i)
     user_p_feat.append(user_cpb_o)
     user_p_feat.append(distance_ocean)
-    #if len(user_lcontacts) > 0:
-    #    user_p_feat.append(distance_ocean / len(user_lcontacts))
-    #else:
+    #user_p_feat.append(distance_ocean / len(user_lcontacts))
+    if len(user_lcontacts) > 0:
+        user_p_feat.append(distance_ocean / len(user_lcontacts))
+    else:
         # 默认处理方法：对于没有leave_contacts的用户，暂时先默认设置为0
-     #   user_p_feat.append(0.0)
+        user_p_feat.append(distance_ocean)
     return user_p_feat  # [user_id, o, c, e, a, n, cpb-i, cpb-o, dis_ocean, avg_dis_ocean]
 
 def Cal_OS_Feat(user_a, user_lcontacts, f_ldap_lst):
@@ -244,11 +247,11 @@ def Cal_OS_Feat(user_a, user_lcontacts, f_ldap_lst):
         lc_ldap = Get_User_LDAP(lcontact, f_ldap_lst)
         dis_ladp = Cal_Distance_LDAP(user_a_ldap, lc_ldap)
         distance_ldap += dis_ladp
-    #if len(user_lcontacts) == 0:
-        #return dis_ladp, 0.0
-    #else:
-        #return dis_ladp, dis_ladp / len(user_lcontacts)
-    return distance_ldap
+    if len(user_lcontacts) == 0:
+        return dis_ladp, dis_ladp
+    else:
+        return dis_ladp, dis_ladp / len(user_lcontacts)
+    #return distance_ldap, distance_ldap / len(user_lcontacts)
 
 class JS_SVM_Predictor():
 
@@ -376,7 +379,7 @@ class JS_SVM_Predictor():
                 print user, '提取用户的OCEAN_Feat\n'
                 user_p_feat = Cal_Personality_Feat(user, user_lcontacts, self.CERT42_OCEAN_lst)
                 print user, '提取用户的OS_Feat\n'
-                dis_ldap = Cal_OS_Feat(user, user_lcontacts, self.CERT42_LDAP_lst)
+                dis_ldap, avg_dis_ldap = Cal_OS_Feat(user, user_lcontacts, self.CERT42_LDAP_lst)
 
                 # user_p_feat: [user_id, o, c, e, a, n, cpb-i, cpb-o, dis_ocean, avg_dis_ocean]
                 # user_lc_feat: # 12-format: user_id, email_ratio, cnt_send/recv, cnt_s/r_size, cnt_s/r_attach, cnt_s/r_days, cnt_email_days
@@ -384,15 +387,15 @@ class JS_SVM_Predictor():
                 user_js_feat = []
                 user_js_feat.extend(user_p_feat)
                 user_js_feat.append(dis_ldap)
-                #user_js_feat.append(avg_dis_ldap)
+                user_js_feat.append(avg_dis_ldap)
                 user_js_feat.extend(user_lc_feat[1:])
                 CERT42_Users_Month_JS_Feats.append(user_js_feat)
                 print user, 'Until', month, 'js feat is like: ', user_js_feat, '\n\n'
 
         # 特征写入
-        f_JS_Feats = open(self.Dst_Dir + '\\' + month + '\\' + month + '_CERT4.2_LCE_Feats-0.1.csv', 'w')
+        f_JS_Feats = open(self.Dst_Dir + '\\' + month + '\\' + month + '_CERT4.2_LCE_Feats-02.csv', 'w')
         # 这里既然将LC当做一个整体，就不再考虑均值
-        f_JS_Feats.write('user_id, o, c, e, a, n, cpb-i, cpb-o, dis_ocean, dis_os, email_ratio, cnt_send, cnt_s_size, cnt_s_attach, cnt_s_days\n')
+        f_JS_Feats.write('user_id, o, c, e, a, n, cpb-i, cpb-o, dis_ocean, avg_dis_ocean, dis_os, avg_dis_os,cnt_send, cnt_s_size, cnt_s_attach, cnt_s_days\n')
         for line in CERT42_Users_Month_JS_Feats:
             for ele in line:
                 f_JS_Feats.write(str(ele))

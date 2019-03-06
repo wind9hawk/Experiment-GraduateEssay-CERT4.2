@@ -1,6 +1,10 @@
 # coding:utf-8
 # 为了节省后续分析的代码量，这里我们还是来按照面向对象来写
 
+# 关于本模块的修改
+# 唯一不同的是，在区分出OnJob与OffJob之后，对OnJob用户进行了KMeans，并在此基础上选择低CPB群簇训练OCSVM
+# 剩余的OnJob用户与OffJob一起作为测试集合
+
 # 主要过程：
 # 基于26JS的CPB特征分析
 # 1. 先按照是否在职离职将用户区分为[-1]与[+1]
@@ -68,17 +72,16 @@ def Cal_Center_CPB(center):
     # CPB-I,CPB-O,
     # JS_Score,
     # Team_CPB-I-mean,Team_CPB-O-mean,Users-less-mean-A,Users-less-mean-A and C,Users-less-mean-C,Users-High-mean-N,Team_CPB-I-median,Team_CPB-O-median,leader-CPB-I,leader-CPB-O,
-    # dis_ocean,avg_dis_ocean,dis_os,avg_dis_os,cnt_send,cnt_send_size,cnt_send_attach,cnt_send_days,cnt_email_days,
+    # dis_ocean,dis_os,cnt_send,cnt_send_size,cnt_send_attach,cnt_send_days,cnt_email_days,
     # cnt_late_days,cnt_early_days,month_work_days,
-    # ratio_late, ratio_early
     print '要计算CPB的center is ', center, '\n'
     cpb_score = center[0] + center[1]
     js_score = center[2]
     # 3:12  [3:13]
     team_cpb_score = np.sum(center[3:13])
     # 13:26  [13:27]
-    lce_cpb_score = np.sum(center[13:25])
-    led_cpb_score = np.sum(center[25:-1])
+    lce_cpb_score = np.sum(center[13:20])
+    led_cpb_score = np.sum(center[21:-1])
     #led_cpb_score = np.sum(center[30:32])
     #user_cpb = led_cpb_score
     user_cpb = cpb_score + math.log(math.e - js_score + team_cpb_score + lce_cpb_score, math.e) + led_cpb_score
@@ -147,7 +150,7 @@ class KMeans_OCSVM_Predictor():
                 js_tmp.append(float(ele))
             self.JS_lst.append(js_tmp)
         print 'JS_lst 初始化完毕..\n'
-        f_ATF = open(self.Analyze_Path + '\\' + 'CERT4.2_Leave_Static_CPB_ATF-02.csv', 'r')
+        f_ATF = open(self.Analyze_Path + '\\' + 'CERT4.2_Leave_Static_CPB_ATF-0.1.csv', 'r')
         f_ATF_lst = f_ATF.readlines()
         self.ATF_lst = []
         self.CERT42_Users_ATFOrder = []
@@ -163,7 +166,6 @@ class KMeans_OCSVM_Predictor():
             self.ATF_lst.append(atf_tmp)
             #if len(line_lst) != 22:
             #    print 'Bug for 22:', line_lst, '\n'
-        self.ATF_lst = skp.MinMaxScaler().fit_transform(self.ATF_lst)
         print 'ATF_lst 初始化完毕..\n'
         print len(self.ATF_lst), '\n'
         for i in range(3):
@@ -266,7 +268,7 @@ class KMeans_OCSVM_Predictor():
         # 这里都是默认聚成了两个群簇..
         # 试着将KMeans聚类的结果保存，以用于重新组成OCSVM的训练集与测试集
         # 先保存JS的聚类结果
-        f_kmeans_pred = open(self.Analyze_Path + '\\' + 'CPB_ATF_KMeans_Pred_02.csv', 'w')
+        f_kmeans_pred = open(self.Analyze_Path + '\\' + 'CPB_ATF_KMeans_Pred.csv', 'w')
         self.KMeans_Clusters = [[] for i in range(self.K)] # 继续保存用户索引
         j = 0
         while j < len(self.KMeans_Index_ATF):
@@ -296,7 +298,7 @@ class KMeans_OCSVM_Predictor():
         KMeans_ATF_MinMax_lst = copy.copy(self.KMeans_ATF_Feats)
         i = 0
         while i < len(KMeans_ATF_MinMax_lst):
-            list(KMeans_ATF_MinMax_lst[i]).extend(KMeans_LED_Ratios[i])
+            KMeans_ATF_MinMax_lst[i].extend(KMeans_LED_Ratios[i])
             i += 1
         KMeans_ATF_MinMax_lst = skp.MinMaxScaler().fit_transform(KMeans_ATF_MinMax_lst)
         KMeans_Cluster_MinMax = [[] for i in range(self.K)]
@@ -313,7 +315,7 @@ class KMeans_OCSVM_Predictor():
 
         cluster_centers = Cal_Cluster_CPB(self.KMeans_ATF_Feats, KMeans_LED_Ratios, KMeans_Cluster_MinMax)
 
-        #sys.exit()
+        sys.exit()
 
 
 
@@ -344,41 +346,34 @@ class KMeans_OCSVM_Predictor():
         print 'Bug for: self.ATF_lst like', self.ATF_lst[:3], '\n'
         #self.ATF_Matrix = np.concatenate(self.ATF_lst, axis=0)
         for i in range(len(self.ATF_lst)):
-            if len(self.ATF_lst[i]) > 23:
+            if len(self.ATF_lst[i]) > 21:
                 del self.ATF_lst[i][-1]
                 del self.ATF_lst[i][-1]
-                #print i, len(self.ATF_lst[i]), self.ATF_lst[i],'\n'
+                print i, len(self.ATF_lst[i]), self.ATF_lst[i],'\n'
             #print i, len(self.ATF_lst[i]), self.ATF_lst[i], '\n'
         #sys.exit()
 
         # self.ATF_lst = np.float64(self.ATF_lst)
-        self.ATF_PCA_lst = skd.PCA().fit_transform(self.ATF_lst)
+        self.ATF_PCA_lst = skd.PCA(n_components=1).fit_transform(self.ATF_lst)
         # scale
-        # self.ATF_PCA_Scale_lst = skp.scale(self.ATF_PCA_lst)
-        self.ATF_PCA_Scale_lst = copy.copy(self.ATF_PCA_lst)
+        self.ATF_PCA_Scale_lst = skp.scale(self.ATF_PCA_lst)
 
         self.Train_Feats = []
         for index_t in self.KMeans_Clusters[t_cls_index]:
             self.Train_Feats.append(self.ATF_PCA_Scale_lst[index_t])
         self.Test_Feats = []
         self.Test_Index = []
-        self.KMeans_Clusters.remove(self.KMeans_Clusters[t_cls_index])
+        # self.KMeans_Clusters.remove(self.KMeans_Clusters[t_cls_index])
         i = 0
         while i < len(self.CERT42_Users_ATFOrder):
-            if self.CERT42_Users_ATFOrder[i] in self.Leave_Users:
+            if i not in self.KMeans_Clusters[t_cls_index]:
                 self.Test_Index.append(i)
                 self.Test_Feats.append(self.ATF_PCA_Scale_lst[i])
                 i += 1
             else:
                 i += 1
-                continue
-                for cls in self.KMeans_Clusters:
-                    if i in cls:
-                        self.Test_Index.append(i)
-                        self.Test_Feats.append(self.ATF_PCA_Scale_lst[i])
-                        i += 1
-                    else:
-                        i += 1
+        print 'self.Test_Feats 共有：', len(self.Test_Feats), '\n'
+        # sys.exit()
         # 生成测试集的标签（以Insiders_1_2_3为标准）
         self.Labels = []
         self.Insiders = []
@@ -478,7 +473,7 @@ class KMeans_OCSVM_Predictor():
         # for line in ocsvm_obj_sort_lst:
         #    print line[2], line, '\n'
         # sys.exit()
-        for i in range(3):
+        for i in range(5):
             print i, ocsvm_obj_sort_lst[i], '\n'
         # 将同步输出DF函数结果，并重新排序：
         self.Risk_Users = []
@@ -493,7 +488,7 @@ class KMeans_OCSVM_Predictor():
             self.Risk_Users.append(risk_tmp)
             j += 1
         self.Risk_Users_Sort = sorted(self.Risk_Users, key=lambda t:t[-1], reverse=True)
-        f_Risk_DF = open(self.Analyze_Path + '\\' + 'CERT4.2_KMeans_OCSVM_CPB_ATF_Predictor_Risk-02.csv', 'w')
+        f_Risk_DF = open(self.Analyze_Path + '\\' + 'CERT4.2_KMeans_OCSVM_CPB_ATF_Predictor_Risk-0.11.csv', 'w')
         f_Risk_DF.write('user_id' + ',' + 'Pred' + ',' + 'Labels' + ',' + 'Risk_DF_Value\n')
         for line in self.Risk_Users_Sort:
             for ele in line:

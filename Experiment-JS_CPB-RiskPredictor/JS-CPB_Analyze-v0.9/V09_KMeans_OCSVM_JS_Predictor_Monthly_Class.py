@@ -1,7 +1,7 @@
 # coding:utf-8
 # 为了节省后续分析的代码量，这里我们还是来按照面向对象来写
 
-# 主要过程：
+# 主要过程：【对于每个月而言】
 # 基于26JS的CPB特征分析
 # 1. 先按照是否在职离职将用户区分为[-1]与[+1]
 # 2. 而后对于[-1]用户基于minmax后的JS特征进行自动KMeans；
@@ -20,8 +20,16 @@ import V09_KMeans_Module
 # import V09_KMeans_OCSVM_CLF_01
 from sklearn import svm
 
+
+def Filter_Insiders(insiders, leave_users):
+    insiders_0 = []
+    for insider in insiders:
+        if insider in leave_users:
+            insiders_0.append(insider)
+    return insiders_0
+
 # 一个根据预测与真实标签计算Recall/FPR/Cnt_P/Cnt_P_Ratio的小程序
-def Cal_Messures(gt_lables, y_pred):
+def Cal_Messures(gt_lables, y_pred, Cnt_Users, Cnt_N_Users):
     recall = 0.0
     fpr = 0.0
     cnt_p = 0.0
@@ -61,27 +69,32 @@ def Cal_Messures(gt_lables, y_pred):
     # cnt_c_p: 分类器预测为P的个数
     # cnt_p: 真实数据中P的个数
     # cnt_n: 真实数据中N的个数
-    return recall, recall / cnt_p, cnt_fp, fpr / 930.0, cnt_c_p / 1000, tp_index, recall_index, fp_index
+    if cnt_p == 0:
+        recall_rate = None
+    else:
+        recall_rate = recall / float(cnt_p)
+    print 'Bug for fpr is ', fpr, '\n'
+    # sys.exit()
+    return recall, recall_rate, fpr, fpr / Cnt_N_Users, cnt_c_p / Cnt_Users, tp_index, recall_index, fp_index
 
 def Cal_Center_CPB(center):
     # user_id,
     # CPB-I,CPB-O,
     # JS_Score,
     # Team_CPB-I-mean,Team_CPB-O-mean,Users-less-mean-A,Users-less-mean-A and C,Users-less-mean-C,Users-High-mean-N,Team_CPB-I-median,Team_CPB-O-median,leader-CPB-I,leader-CPB-O,
-    # dis_ocean,avg_dis_ocean,dis_os,avg_dis_os,cnt_send,cnt_send_size,cnt_send_attach,cnt_send_days,cnt_email_days,
+    # dis_ocean,dis_os,cnt_send,cnt_send_size,cnt_send_attach,cnt_send_days,cnt_email_days,
     # cnt_late_days,cnt_early_days,month_work_days,
-    # ratio_late, ratio_early
     print '要计算CPB的center is ', center, '\n'
     cpb_score = center[0] + center[1]
     js_score = center[2]
     # 3:12  [3:13]
     team_cpb_score = np.sum(center[3:13])
     # 13:26  [13:27]
-    lce_cpb_score = np.sum(center[13:25])
-    led_cpb_score = np.sum(center[25:-1])
+    lce_cpb_score = np.sum(center[13:20])
+    led_cpb_score = np.sum(center[21:-1])
     #led_cpb_score = np.sum(center[30:32])
     #user_cpb = led_cpb_score
-    user_cpb = cpb_score + math.log(math.e - js_score + team_cpb_score + lce_cpb_score, math.e) + led_cpb_score
+    user_cpb = (cpb_score + math.log(math.e - js_score + team_cpb_score + lce_cpb_score, math.e)) * math.log(math.e + led_cpb_score, math.e)
     return user_cpb
 
 def Cal_Cluster_CPB(kmeans_atf_lst, kmeans_led_lst, kmeans_cluster_minmax):
@@ -127,9 +140,11 @@ def Cal_Cluster_CPB(kmeans_atf_lst, kmeans_led_lst, kmeans_cluster_minmax):
 
 
 class KMeans_OCSVM_Predictor():
-    def __init__(self, dst_dir):
+    def __init__(self, src_dir, dst_dir, month):
         self.Dst_Dir = dst_dir
         self.Analyze_Path = self.Dst_Dir + '\\' + 'KMeans_OCSVM_Insiders_Predictor'
+        self.Src_Dir = src_dir
+        self.Month = month
         # 初始化JS特征
         f_JS = open(self.Analyze_Path + '\\' + 'CERT4.2-2009-12-New-26JS.csv', 'r')
         # f_JS = open(self.Analyze_Path + '\\' + 'CERT6.2-2010-07-New-25JS.csv', 'r')
@@ -147,7 +162,7 @@ class KMeans_OCSVM_Predictor():
                 js_tmp.append(float(ele))
             self.JS_lst.append(js_tmp)
         print 'JS_lst 初始化完毕..\n'
-        f_ATF = open(self.Analyze_Path + '\\' + 'CERT4.2_Leave_Static_CPB_ATF-02.csv', 'r')
+        f_ATF = open(self.Src_Dir + '\\' + 'CERT4.2_Leave_ATF_02.csv', 'r')
         f_ATF_lst = f_ATF.readlines()
         self.ATF_lst = []
         self.CERT42_Users_ATFOrder = []
@@ -158,13 +173,14 @@ class KMeans_OCSVM_Predictor():
             self.CERT42_Users_ATFOrder.append(line_lst[0])
             atf_tmp = []
             # js_tmp中不包含用户字段
-            for ele in line_lst[1:]:
+            for ele in line_lst[6:]:
                 atf_tmp.append(float(ele))
             self.ATF_lst.append(atf_tmp)
             #if len(line_lst) != 22:
             #    print 'Bug for 22:', line_lst, '\n'
         self.ATF_lst = skp.MinMaxScaler().fit_transform(self.ATF_lst)
         print 'ATF_lst 初始化完毕..\n'
+        self.Cnt_Month_Users = len(self.ATF_lst)
         print len(self.ATF_lst), '\n'
         for i in range(3):
             print i, self.ATF_lst[i], '\n'
@@ -172,7 +188,10 @@ class KMeans_OCSVM_Predictor():
 
         # 初始化Leave Users
         self.Leave_Users = []
-        f_leave = open(self.Dst_Dir + '\\' + 'CERT4.2-Leave-Users_OnDay_0.9.csv', 'r')
+        for file in os.listdir(self.Src_Dir):
+            if '_Leave_Users.csv' in file:
+                leave_path = self.Src_Dir + '\\' + file
+        f_leave = open(leave_path, 'r')
         f_leave_lst = f_leave.readlines()
         for line_lv in f_leave_lst:
             line_lst = line_lv.strip('\n').strip(',').split(',')
@@ -213,7 +232,20 @@ class KMeans_OCSVM_Predictor():
             self.Insiders_3.append(line_lst[0])
         f_insider_3.close()
 
-        print self.Insiders_1, '\n'
+        # 这里需要依据当月的离职列表对于Insiders进行过滤，即目标是识别该月中离职的Insiders
+
+        print len(self.Insiders_1), len(self.Insiders_2), len(self.Insiders_3), '\n'
+        self.Insiders_1 = Filter_Insiders(self.Insiders_1, self.Leave_Users)
+        self.Insiders_2 = Filter_Insiders(self.Insiders_2, self.Leave_Users)
+        self.Insiders_3 = Filter_Insiders(self.Insiders_3, self.Leave_Users)
+
+        self.Cnt_Month_Insiders = len(self.Insiders_1) + len(self.Insiders_2) + len(self.Insiders_3)
+
+        # sys.exit()
+        if len(self.Insiders_1) + len(self.Insiders_2) + len(self.Insiders_3) == 0:
+            self.YesToGo = False
+        else:
+            self.YesToGo = True
         print 'CERT4.2 Insiders1/2/3列表提取完毕..\n'
 
         print 'KMeans+OCSVM预测器数据初始化完毕..\n\n'
@@ -313,7 +345,7 @@ class KMeans_OCSVM_Predictor():
 
         cluster_centers = Cal_Cluster_CPB(self.KMeans_ATF_Feats, KMeans_LED_Ratios, KMeans_Cluster_MinMax)
 
-        #sys.exit()
+        # sys.exit()
 
 
 
@@ -347,7 +379,7 @@ class KMeans_OCSVM_Predictor():
             if len(self.ATF_lst[i]) > 23:
                 del self.ATF_lst[i][-1]
                 del self.ATF_lst[i][-1]
-                #print i, len(self.ATF_lst[i]), self.ATF_lst[i],'\n'
+                print i, len(self.ATF_lst[i]), self.ATF_lst[i],'\n'
             #print i, len(self.ATF_lst[i]), self.ATF_lst[i], '\n'
         #sys.exit()
 
@@ -372,13 +404,6 @@ class KMeans_OCSVM_Predictor():
             else:
                 i += 1
                 continue
-                for cls in self.KMeans_Clusters:
-                    if i in cls:
-                        self.Test_Index.append(i)
-                        self.Test_Feats.append(self.ATF_PCA_Scale_lst[i])
-                        i += 1
-                    else:
-                        i += 1
         # 生成测试集的标签（以Insiders_1_2_3为标准）
         self.Labels = []
         self.Insiders = []
@@ -405,11 +430,14 @@ class KMeans_OCSVM_Predictor():
         self.Insiders.extend(self.Insiders_1)
         self.Insiders.extend(self.Insiders_2)
         self.Insiders.extend(self.Insiders_3)
+        print 'self.Insiders is ', self.Insiders, '\n'
         for v_index in self.Test_Index:
             if self.CERT42_Users_ATFOrder[v_index] in self.Insiders:
                 self.Labels.append(1)
             else:
                 self.Labels.append(-1)
+        print 'Bug for :', self.Labels.count(1), '\n'
+        #sys.exit()
 
         # 开始训练OCSVM
         nu_lst = range(1, 101, 1)
@@ -435,18 +463,21 @@ class KMeans_OCSVM_Predictor():
             # print self.Labels[k][0], pred[0], self.Labels[k][0] == pred[0], '\n'
             # sys.exit()
             cnt_recall, recall, cnt_fp, fpr, risk_ratio, tp_index, recall_index, fp_index = Cal_Messures(self.Labels,
-                                                                                                         pred)
+                                                                                                         pred, len(self.ATF_lst), len(self.ATF_lst) - len(self.Insiders))
             # print 'Bug for after Cal_Messure, tp_index:', tp_index, '\n'
             # print 'Bug for after Cal_Messure, recall_index:', recall_index, '\n'
             # sys.exit()
             # 上述验证通过
             miu = 1.0
+            print recall, fpr, '\n'
             m_score = miu * recall - (1 - miu) * fpr
             ocsvm_tmp = []
             ocsvm_tmp.append(nu_0)
             ocsvm_tmp.append(miu)
             ocsvm_tmp.append(m_score)
+            ocsvm_tmp.append(cnt_recall)
             ocsvm_tmp.append(recall)
+            ocsvm_tmp.append(cnt_fp)
             ocsvm_tmp.append(fpr)
             ocsvm_tmp.append(risk_ratio)
             ocsvm_tmp.append(clf)
@@ -463,13 +494,25 @@ class KMeans_OCSVM_Predictor():
             for index_i in self.Test_Insiders_3_Index:
                 if pred[index_i] == 1:
                     recall_3 += 1
-            ocsvm_tmp.append(recall_1 / len(self.Insiders_1))
-            ocsvm_tmp.append(recall_2 / len(self.Insiders_2))
-            ocsvm_tmp.append(recall_3 / len(self.Insiders_3))
+            if len(self.Insiders_1) != 0:
+                ocsvm_tmp.append(recall_1 / len(self.Insiders_1))
+            else:
+                ocsvm_tmp.append('-1')
+            if len(self.Insiders_2) != 0:
+                ocsvm_tmp.append(recall_2 / len(self.Insiders_2))
+            else:
+                ocsvm_tmp.append('-2')
+            if len(self.Insiders_3) != 0:
+                ocsvm_tmp.append(recall_3 / len(self.Insiders_3))
+            else:
+                ocsvm_tmp.append('-3')
             ocsvm_tmp.append(pred)
             #ocsvm_tmp.append(tp_index)
             #ocsvm_tmp.append(recall_index)
             #ocsvm_tmp.append(fp_index)
+            if nu_0 == 0.0048:
+                print ocsvm_tmp, '\n'
+                sys.exit()
             ocsvm_obj_lst.append(ocsvm_tmp)
         print 'nu参数遍历计算完成..\n'
         # 输出最高m_score
@@ -493,7 +536,7 @@ class KMeans_OCSVM_Predictor():
             self.Risk_Users.append(risk_tmp)
             j += 1
         self.Risk_Users_Sort = sorted(self.Risk_Users, key=lambda t:t[-1], reverse=True)
-        f_Risk_DF = open(self.Analyze_Path + '\\' + 'CERT4.2_KMeans_OCSVM_CPB_ATF_Predictor_Risk-02.csv', 'w')
+        f_Risk_DF = open(self.Analyze_Path + '\\' + self.Month + '_CERT4.2_KMeans_OCSVM_CPB_ATF_Predictor_Risk-0.11.csv', 'w')
         f_Risk_DF.write('user_id' + ',' + 'Pred' + ',' + 'Labels' + ',' + 'Risk_DF_Value\n')
         for line in self.Risk_Users_Sort:
             for ele in line:
@@ -507,7 +550,7 @@ class KMeans_OCSVM_Predictor():
             i = 0
             while i < len(self.Risk_Users_Sort):
                 if self.Risk_Users_Sort[i][0] == insider_1:
-                    print self.Risk_Users_Sort[i], ':', i, '\n'
+                    #print self.Risk_Users_Sort[i], ':', i, '\n'
                     i += 1
                 else:
                     i += 1
@@ -517,7 +560,7 @@ class KMeans_OCSVM_Predictor():
             i = 0
             while i < len(self.Risk_Users_Sort):
                 if self.Risk_Users_Sort[i][0] == insider_2:
-                    print self.Risk_Users_Sort[i], ':', i, '\n'
+                    #print self.Risk_Users_Sort[i], ':', i, '\n'
                     i += 1
                 else:
                     i += 1
@@ -527,18 +570,35 @@ class KMeans_OCSVM_Predictor():
             i = 0
             while i < len(self.Risk_Users_Sort):
                 if self.Risk_Users_Sort[i][0] == insider_3:
-                    print self.Risk_Users_Sort[i], ':', i, '\n'
+                    #print self.Risk_Users_Sort[i], ':', i, '\n'
                     i += 1
                 else:
                     i += 1
+        print self.Month, '分析完毕..\n'
 
 
 
-
-print '..<<基于原始26维度JS特征的CERT4.2静态高危用户预测实验>>..\n\n'
-Dst_Dir = sys.path[0]
-# 初始化对象
-Predictor_obj = KMeans_OCSVM_Predictor(Dst_Dir)
-Predictor_obj.Auto_KMeans()
-Predictor_obj.OCSVM_Predictor()
+# 将每个月份的用户数据作为Static，逐月分析
+# 由于用户特征与结果不在一个目录，因此需要区分src/dst dir
+print '..<<基于原始26维度JS特征的CERT4.2按月的高危用户预测实验>>..\n\n'
+# 首先获取分析的月份列表以确定用户特征源路径
+Analyze_Months = []
+for file in os.listdir(sys.path[0]):
+    if '-' in file and os.path.isdir(sys.path[0] + '\\' + file) == True:
+        Analyze_Months.append(file)
+print '要分析的CERT4.2月份为：', Analyze_Months, '\n'
+#
+for month in Analyze_Months[14:15]:
+    print '开始处理', month, '\n'
+    Dst_Dir = sys.path[0]
+    Src_Dir = sys.path[0] + '\\' + month
+    # 初始化对象
+    Predictor_obj = KMeans_OCSVM_Predictor(Src_Dir, Dst_Dir, month)
+    print month, Predictor_obj.YesToGo, '\n'
+    # sys.exit()
+    if Predictor_obj.YesToGo == False:
+        continue
+    Predictor_obj.Auto_KMeans()
+    Predictor_obj.OCSVM_Predictor()
+    print month, '分析完毕..\n'
 
