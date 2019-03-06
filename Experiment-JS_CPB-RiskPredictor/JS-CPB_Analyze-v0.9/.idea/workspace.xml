@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2c28edd4-20bd-4cd0-96a8-155610a8375f" name="Default Changelist" comment="" />
+    <list default="true" id="2c28edd4-20bd-4cd0-96a8-155610a8375f" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../CERT4.2_基于工作满意度的静态JS-ATF高危用户预测分析[19年1月次周].docx" beforeDir="false" afterPath="$PROJECT_DIR$/../CERT4.2_基于工作满意度的静态JS-ATF高危用户预测分析[19年1月次周].docx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/KMeans_OCSVM_Insiders_Predictor/CPB_ATF_KMeans_Pred.csv" beforeDir="false" afterPath="$PROJECT_DIR$/KMeans_OCSVM_Insiders_Predictor/CPB_ATF_KMeans_Pred.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/V09_Build_ATF.py" beforeDir="false" afterPath="$PROJECT_DIR$/V09_Build_ATF.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/V09_Build_Static_ATF.py" beforeDir="false" afterPath="$PROJECT_DIR$/V09_Build_Static_ATF.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/V09_KMeans_OCSVM_JS_Predictor_Class.py" beforeDir="false" afterPath="$PROJECT_DIR$/V09_KMeans_OCSVM_JS_Predictor_Class.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/V09_LCE_Months.py" beforeDir="false" afterPath="$PROJECT_DIR$/V09_LCE_Months.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/V09_Tools_01.py" beforeDir="false" afterPath="$PROJECT_DIR$/V09_Tools_01.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -12,92 +21,59 @@
     <session id="-77579252">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="3" />
-          <entry key="project.open.time.0" value="1" />
-          <entry key="project.open.time.18" value="2" />
-          <entry key="project.opened" value="3" />
+          <entry key="project.closed" value="31" />
+          <entry key="project.open.time.0" value="3" />
+          <entry key="project.open.time.15" value="4" />
+          <entry key="project.open.time.16" value="2" />
+          <entry key="project.open.time.18" value="5" />
+          <entry key="project.open.time.19" value="2" />
+          <entry key="project.open.time.20" value="1" />
+          <entry key="project.open.time.21" value="3" />
+          <entry key="project.open.time.22" value="1" />
+          <entry key="project.open.time.24" value="1" />
+          <entry key="project.open.time.3" value="3" />
+          <entry key="project.open.time.4" value="3" />
+          <entry key="project.open.time.41" value="1" />
+          <entry key="project.open.time.5" value="2" />
+          <entry key="project.opened" value="31" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="py" value="7" />
+          <entry key="csv" value="1" />
+          <entry key="py" value="50" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Python" value="7" />
+          <entry key="PLAIN_TEXT" value="1" />
+          <entry key="Python" value="50" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="1899" />
+          <entry key="dummy" value="14" />
+          <entry key="py" value="17970" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="1899" />
+          <entry key="PLAIN_TEXT" value="14" />
+          <entry key="Python" value="17970" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/V09-LaidOff Insiders.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="29">
-              <caret line="54" column="28" selection-start-line="54" selection-start-column="28" selection-end-line="54" selection-end-column="28" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/V09-LDAP_AllUsers.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2175">
-              <caret line="76" column="53" selection-start-line="76" selection-start-column="53" selection-end-line="76" selection-end-column="53" />
-              <folding>
-                <element signature="e#357#366#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/V09_Extract_Logon.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2987">
-              <caret line="104" selection-start-line="104" selection-end-line="104" />
-              <folding>
-                <element signature="e#168#183#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/V09_Extract_WorkTime.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2929">
-              <caret line="101" column="33" selection-start-line="101" selection-start-column="33" selection-end-line="101" selection-end-column="33" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/V09_Check_Early_Late.py">
+        <entry file="file://$PROJECT_DIR$/V09_KMeans_OCSVM_JS_Predictor_Monthly_Class.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="8836">
-              <caret line="306" column="11" selection-start-line="306" selection-start-column="11" selection-end-line="306" selection-end-column="11" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/V09_Extract_Team_WorkTime.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4495">
-              <caret line="155" selection-start-line="155" selection-end-line="155" />
+            <state relative-caret-position="145">
+              <caret line="590" column="35" lean-forward="true" selection-start-line="590" selection-start-column="35" selection-end-line="590" selection-end-column="35" />
+              <folding>
+                <marker date="1548660843026" expanded="true" signature="8122:8541" ph="..." />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -111,6 +87,9 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
@@ -118,9 +97,20 @@
         <option value="$PROJECT_DIR$/V09_Extract_Logon.py" />
         <option value="$PROJECT_DIR$/V09_Extract_WorkTime.py" />
         <option value="$PROJECT_DIR$/V09_Extract_Team_WorkTime.py" />
-        <option value="$PROJECT_DIR$/V09_Tools_01.py" />
-        <option value="$PROJECT_DIR$/V09_Check_Early_Late.py" />
         <option value="$PROJECT_DIR$/V09-LaidOff Insiders.py" />
+        <option value="$PROJECT_DIR$/V09-EmailFilter.py" />
+        <option value="$PROJECT_DIR$/V09_CERT5.2_Email_Filter_Feats.py" />
+        <option value="$PROJECT_DIR$/V09_Extract_LeaveContacts_EmailFeats.py" />
+        <option value="$PROJECT_DIR$/V09_Check_Early_Late.py" />
+        <option value="$PROJECT_DIR$/V09_26JS-Model-Profile.py" />
+        <option value="$PROJECT_DIR$/V09_Tools_01.py" />
+        <option value="$PROJECT_DIR$/V09_RF_Feat_Importance.py" />
+        <option value="$PROJECT_DIR$/V09_KMeans_OCSVM_JS_Predictor_Off-LowCPB_Class.py" />
+        <option value="$PROJECT_DIR$/V09_LCE_Months.py" />
+        <option value="$PROJECT_DIR$/V09_Build_ATF.py" />
+        <option value="$PROJECT_DIR$/V09_Build_Static_ATF.py" />
+        <option value="$PROJECT_DIR$/V09_KMeans_OCSVM_JS_Predictor_Class.py" />
+        <option value="$PROJECT_DIR$/V09_KMeans_OCSVM_JS_Predictor_Monthly_Class.py" />
       </list>
     </option>
   </component>
@@ -129,28 +119,21 @@
     <option name="width" value="1940" />
     <option name="height" value="970" />
   </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
-    <panes>
-      <pane id="Scope" />
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="JS-CPB_Analyze-v0.9" type="b2602c69:ProjectViewProjectNode" />
-              <item name="JS-CPB_Analyze-v0.9" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-    </panes>
+    <panes />
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../Experiment-JobSatisfactory-201808" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="G:\GitHub\Essay-Experiments\Experiment-GraduateEssay-CERT4.2\Experiment-JS_CPB-RiskPredictor\JS-CPB_Analyze-v0.9" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -164,8 +147,8 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.V09_Check_Early_Late">
-    <configuration name="V09_Check_Early_Late" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.V09_KMeans_OCSVM_JS_Predictor_Monthly_Class">
+    <configuration name="V09_Build_ATF" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="JS-CPB_Analyze-v0.9" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -177,7 +160,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/V09_Check_Early_Late.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/V09_Build_ATF.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -186,7 +169,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="V09_Extract_Logon" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="V09_Build_Static_ATF" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="JS-CPB_Analyze-v0.9" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -198,7 +181,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/V09_Extract_Logon.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/V09_Build_Static_ATF.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -207,7 +190,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="V09_Extract_Team_WorkTime" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="V09_KMeans_OCSVM_JS_Predictor_Class" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="JS-CPB_Analyze-v0.9" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -219,7 +202,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/V09_Extract_Team_WorkTime.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/V09_KMeans_OCSVM_JS_Predictor_Class.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -228,7 +211,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="V09_Extract_WorkTime" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="V09_KMeans_OCSVM_JS_Predictor_Monthly_Class" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="JS-CPB_Analyze-v0.9" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -240,7 +223,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/V09_Extract_WorkTime.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/V09_KMeans_OCSVM_JS_Predictor_Monthly_Class.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -249,7 +232,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="V09_Tools_01" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="V09_LCE_Months" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="JS-CPB_Analyze-v0.9" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -261,7 +244,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/V09_Tools_01.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/V09_LCE_Months.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -271,19 +254,19 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.V09_Extract_Logon" />
-      <item itemvalue="Python.V09_Extract_WorkTime" />
-      <item itemvalue="Python.V09_Extract_Team_WorkTime" />
-      <item itemvalue="Python.V09_Tools_01" />
-      <item itemvalue="Python.V09_Check_Early_Late" />
+      <item itemvalue="Python.V09_LCE_Months" />
+      <item itemvalue="Python.V09_Build_ATF" />
+      <item itemvalue="Python.V09_Build_Static_ATF" />
+      <item itemvalue="Python.V09_KMeans_OCSVM_JS_Predictor_Class" />
+      <item itemvalue="Python.V09_KMeans_OCSVM_JS_Predictor_Monthly_Class" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.V09_Check_Early_Late" />
-        <item itemvalue="Python.V09_Tools_01" />
-        <item itemvalue="Python.V09_Extract_WorkTime" />
-        <item itemvalue="Python.V09_Extract_Team_WorkTime" />
-        <item itemvalue="Python.V09_Extract_Logon" />
+        <item itemvalue="Python.V09_KMeans_OCSVM_JS_Predictor_Monthly_Class" />
+        <item itemvalue="Python.V09_KMeans_OCSVM_JS_Predictor_Class" />
+        <item itemvalue="Python.V09_Build_Static_ATF" />
+        <item itemvalue="Python.V09_Build_ATF" />
+        <item itemvalue="Python.V09_LCE_Months" />
       </list>
     </recent_temporary>
   </component>
@@ -302,18 +285,19 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.21404904" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.32007954" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.37188873" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.5241581" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.39970717" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Terminal" order="8" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Python Console" order="10" />
@@ -325,18 +309,15 @@
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
+  <component name="VcsManagerConfiguration">
+    <option name="LAST_COMMIT_MESSAGE" value="" />
+  </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/V09_Tools_01.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="618">
-          <caret line="66" lean-forward="true" selection-start-line="66" selection-end-line="66" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/V09-EmailFilter.py" />
     <entry file="file://$PROJECT_DIR$/V09-LaidOff Insiders.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="29">
-          <caret line="54" column="28" selection-start-line="54" selection-start-column="28" selection-end-line="54" selection-end-column="28" />
+        <state relative-caret-position="3451">
+          <caret line="120" column="9" selection-start-line="120" selection-start-column="9" selection-end-line="120" selection-end-column="9" />
         </state>
       </provider>
     </entry>
@@ -344,40 +325,138 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2175">
           <caret line="76" column="53" selection-start-line="76" selection-start-column="53" selection-end-line="76" selection-end-column="53" />
-          <folding>
-            <element signature="e#357#366#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/V09_Extract_Logon.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2987">
-          <caret line="104" selection-start-line="104" selection-end-line="104" />
-          <folding>
-            <element signature="e#168#183#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/V09_Extract_WorkTime.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2929">
-          <caret line="101" column="33" selection-start-line="101" selection-start-column="33" selection-end-line="101" selection-end-column="33" />
+        <state relative-caret-position="377">
+          <caret line="13" column="16" selection-start-line="13" selection-start-column="16" selection-end-line="13" selection-end-column="16" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/V09_Extract_Team_WorkTime.py">
+    <entry file="file://$PROJECT_DIR$/V09_CERT4.2_Team_WorkTime.csv">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4495">
-          <caret line="155" selection-start-line="155" selection-end-line="155" />
+        <state relative-caret-position="58">
+          <caret line="2" column="57" selection-start-line="2" selection-start-column="57" selection-end-line="2" selection-end-column="57" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/V09_Check_Early_Late.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="8836">
-          <caret line="306" column="11" selection-start-line="306" selection-start-column="11" selection-end-line="306" selection-end-column="11" />
+        <state relative-caret-position="310">
+          <caret line="293" column="3" lean-forward="true" selection-start-line="293" selection-end-line="294" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/V09_Extract_LeaveContacts_EmailFeats.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="114">
+          <caret line="145" column="25" selection-start-line="145" selection-start-column="25" selection-end-line="145" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/V09_CERT5.2_Email_Filter_Feats.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3712">
+          <caret line="137" column="58" selection-start-line="137" selection-start-column="58" selection-end-line="137" selection-end-column="58" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/V09_Extract_Team_WorkTime.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1017">
+          <caret line="155" selection-start-line="155" selection-end-line="155" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/V09_Extract_Logon.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2532">
+          <caret line="13" column="18" selection-start-line="12" selection-end-line="18" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://D:/Anaconda2/Lib/site-packages/sklearn/utils/validation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="12180">
+          <caret line="432" selection-start-line="432" selection-end-line="432" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/V09_26JS-Model-Profile.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="464">
+          <caret line="21" column="40" selection-start-line="21" selection-start-column="40" selection-end-line="21" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://D:/Anaconda2/Lib/site-packages/sklearn/cross_validation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="382">
+          <caret line="40" selection-start-line="40" selection-end-line="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../Experiment-JobSatisfactory-201808/PythonCode0/JS-Risks_Analyze-0.9/CERT5.2-Leave-Users_OnDays_0.6.csv">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/V09_Tools_01.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3422">
+          <caret line="123" column="35" selection-start-line="123" selection-start-column="35" selection-end-line="123" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/V09_KMeans_OCSVM_JS_Predictor_Off-LowCPB_Class.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="18">
+          <caret line="80" column="41" lean-forward="true" selection-start-line="80" selection-start-column="41" selection-end-line="80" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/V09_RF_Feat_Importance.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="35">
+          <caret line="23" column="37" selection-start-line="23" selection-start-column="37" selection-end-line="23" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/V09_Build_Static_ATF.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="196">
+          <caret line="88" column="10" lean-forward="true" selection-start-line="88" selection-start-column="10" selection-end-line="88" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/V09_Build_ATF.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="147">
+          <caret line="155" column="40" selection-start-line="155" selection-start-column="40" selection-end-line="155" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/V09_LCE_Months.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="62">
+          <caret line="394" column="14" selection-start-line="394" selection-start-column="14" selection-end-line="394" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/V09_KMeans_OCSVM_JS_Predictor_Class.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="373" column="16" lean-forward="true" selection-start-line="373" selection-start-column="16" selection-end-line="373" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/V09_KMeans_OCSVM_JS_Predictor_Monthly_Class.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="145">
+          <caret line="590" column="35" lean-forward="true" selection-start-line="590" selection-start-column="35" selection-end-line="590" selection-end-column="35" />
+          <folding>
+            <marker date="1548660843026" expanded="true" signature="8122:8541" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>
